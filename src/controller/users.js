@@ -8,4 +8,10 @@ userRoute.get('/',(req,res) => {
     })
 })
 
+userRoute.get('/registerUser',(req,res) => {
+    return res.json({
+        msg : "user register successfully"
+    })
+})
+
 module.exports = userRoute
