@@ -1,8 +1,8 @@
 const express = require('express');
 const cors = require('cors')
 
-const userRoute = require('./src/router/users');
-const db = require('./src/model/index');
+const Router = require('./src/router');
+// const db = require('./src/model/index');
 
 const app = express();
 
@@ -12,7 +12,11 @@ app.use(cors())
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
-app.use('/user',userRoute)
+// User Management
+app.use('/v1/user',Router.UserRouter)
+
+// Mailer management
+app.use('/v1/mailer',Router.MailerRouter)
 
 app.get('/',(req,res) => {
     return res.json({
