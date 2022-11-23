@@ -10,6 +10,7 @@ mailerRouter.get('/',(req,res) => {
     })
 })
 
+// Node mailer demo test
 mailerRouter.get('/sendmail',(req,res) => {
 
     const mailTemplate = '<div><p>Hi Nithin</p><div><p>This is a mail template demo test from pingifbulk</p></div></div>'
@@ -19,12 +20,40 @@ mailerRouter.get('/sendmail',(req,res) => {
         content : mailTemplate
     }
     const state = sendMailFunction(mailDemoData)
-    
+    state.then(() => {
         return res.json({
-            msg : state
+            msg : 'success'
         })
+    }).catch(e => {
+        return res.json({
+            msg : 'Failed'
+        })
+    })
 })
 
+// Send single mail dynamic
+mailerRouter.post('/mailSend',(req, res) => {
+    const { content, toMail, subject } = req.body
+    const mailData = {
+        toMailId : toMail,
+        subject : subject,
+        content : content
+    }
+    const state = sendMailFunction(mailData)
+    state.then(() => {
+        return res.json({
+            msg : 'success',
+            success: true
+        })
+    }).catch(e => {
+        return res.json({
+            msg : 'Failed',
+            success: false
+        })
+    })
+})
+
+// Mail sender functionality
 const sendMailFunction = async (mailDetails) => {
     const mailerTransport = nodemailer.createTransport({
         service: 'gmail',
@@ -52,8 +81,6 @@ const sendMailFunction = async (mailDetails) => {
             state = 'Sent successfully'
         }
     })
-
-    return 'Sent successfully'
 
 
 }
