@@ -1,6 +1,5 @@
 const express = require('express');
-const nodemailer = require('nodemailer')
-const config = require('../config/mailConfig')
+const sendMailFunction = require('../utility/mail')
 
 const mailerRouter = express();
 
@@ -34,6 +33,7 @@ mailerRouter.get('/sendmail',(req,res) => {
 // Send single mail dynamic
 mailerRouter.post('/mailSend',(req, res) => {
     const { content, toMail, subject } = req.body
+    console.log(req.body)
     const mailData = {
         toMailId : toMail,
         subject : subject,
@@ -52,37 +52,5 @@ mailerRouter.post('/mailSend',(req, res) => {
         })
     })
 })
-
-// Mail sender functionality
-const sendMailFunction = async (mailDetails) => {
-    const mailerTransport = nodemailer.createTransport({
-        service: 'gmail',
-        host : 'smtp.gmail.com',
-        secure : false,
-        auth: {
-        user: config.mailConfig.userName,
-        pass: config.mailConfig.passWord
-        }
-    });
-
-    const demoDetails = {
-        from : "codeplayground123@gmail.com",
-        to : mailDetails.toMailId,
-        subject : mailDetails.subject,
-        html : mailDetails.content
-      }
-
-      let state = ''
-
-      await mailerTransport.sendMail(demoDetails, (err) => {
-        if(err) {
-            state = 'failed'
-        } else {
-            state = 'Sent successfully'
-        }
-    })
-
-
-}
 
 module.exports = mailerRouter
