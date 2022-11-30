@@ -1,8 +1,9 @@
 const express = require('express');
 const cors = require('cors')
+const bodyParser = require('body-parser')
 
 const Router = require('./src/router');
-// const db = require('./src/model/index');
+const db = require('./src/model/index');
 
 const app = express();
 
@@ -10,7 +11,14 @@ const PORT = process.env.NODE_PORT || 8000;
 
 app.use(cors())
 app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// parse application/x-www-form-urlencoded
+app.use(bodyParser.urlencoded({ extended: false }))
+
+// parse application/json
+app.use(bodyParser.json())
 
 // User Management
 app.use('/v1/user',Router.UserRouter)
