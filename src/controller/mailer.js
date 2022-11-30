@@ -1,6 +1,5 @@
 const express = require('express');
-const nodemailer = require('nodemailer')
-const config = require('../config/mailConfig')
+const sendMailFunction = require('../utility/mail')
 
 const mailerRouter = express();
 
@@ -10,6 +9,7 @@ mailerRouter.get('/',(req,res) => {
     })
 })
 
+// Node mailer demo test
 mailerRouter.get('/sendmail',(req,res) => {
 
     const mailTemplate = '<div><p>Hi Nithin</p><div><p>This is a mail template demo test from pingifbulk</p></div></div>'
@@ -19,43 +19,38 @@ mailerRouter.get('/sendmail',(req,res) => {
         content : mailTemplate
     }
     const state = sendMailFunction(mailDemoData)
-    
+    state.then(() => {
         return res.json({
-            msg : state
+            msg : 'success'
         })
+    }).catch(e => {
+        return res.json({
+            msg : 'Failed'
+        })
+    })
 })
 
-const sendMailFunction = async (mailDetails) => {
-    const mailerTransport = nodemailer.createTransport({
-        service: 'gmail',
-        host : 'smtp.gmail.com',
-        secure : false,
-        auth: {
-        user: config.mailConfig.userName,
-        pass: config.mailConfig.passWord
-        }
-    });
-
-    const demoDetails = {
-        from : "codeplayground123@gmail.com",
-        to : mailDetails.toMailId,
-        subject : mailDetails.subject,
-        html : mailDetails.content
-      }
-
-      let state = ''
-
-      await mailerTransport.sendMail(demoDetails, (err) => {
-        if(err) {
-            state = 'failed'
-        } else {
-            state = 'Sent successfully'
-        }
+// Send single mail dynamic
+mailerRouter.post('/mailSend',(req, res) => {
+    const { content, toMail, subject } = req.body
+    console.log(req.body)
+    const mailData = {
+        toMailId : toMail,
+        subject : subject,
+        content : content
+    }
+    const state = sendMailFunction(mailData)
+    state.then(() => {
+        return res.json({
+            msg : 'success',
+            success: true
+        })
+    }).catch(e => {
+        return res.json({
+            msg : 'Failed',
+            success: false
+        })
     })
-
-    return 'Sent successfully'
-
-
-}
+})
 
 module.exports = mailerRouter
