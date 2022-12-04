@@ -3,8 +3,10 @@ const controller = require('../controller')
 
 const userRoute = express();
 
-userRoute.get('/',controller.userController)
-userRoute.post('/addUser',controller.userController)
-userRoute.post('/login',controller.userController)
+userRoute.get('/',controller.userController.checkService)
+userRoute.post('/addUser',controller.userController.addUser)
+userRoute.post('/login',controller.userController.loginAuth)
+userRoute.get('/listusers',controller.userController.listUsers)
+userRoute.get('/listuser/:id',controller.userController.listUser)
 
 module.exports = userRoute

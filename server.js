@@ -3,7 +3,6 @@ const cors = require('cors')
 const bodyParser = require('body-parser')
 
 const Router = require('./src/router');
-const db = require('./src/model/index');
 
 const app = express();
 
@@ -25,6 +24,12 @@ app.use('/v1/user',Router.UserRouter)
 
 // Mailer management
 app.use('/v1/mailer',Router.MailerRouter)
+
+// Consumer management
+app.use('/v1/consumer',Router.ConsumerRouter)
+
+// Team management
+app.use('/v1/team',Router.TeamRouter)
 
 app.get('/',(req,res) => {
     return res.json({
