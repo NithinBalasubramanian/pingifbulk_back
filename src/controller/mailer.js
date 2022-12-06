@@ -33,7 +33,7 @@ mailerRouter.get('/sendmail',(req,res) => {
 // Send single mail dynamic
 mailerRouter.post('/mailSend',(req, res) => {
     const { content, toMail, subject } = req.body
-    console.log(req.body)
+    // console.log(req.body)
     const mailData = {
         toMailId : toMail,
         subject : subject,
