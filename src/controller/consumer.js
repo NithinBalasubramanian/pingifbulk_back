@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
+require('../model/consumer')
+require('../model/consumerType')
 const consumerDb = mongoose.model('consumer')
+const consumerTypeDb = mongoose.model('consumerType')
 
 module.exports = {
     consumerService: ((req,res) => {
@@ -61,6 +64,29 @@ module.exports = {
                 return res.json({
                     data: resData,
                     msg: 'Consumer fetched successfully',
+                    success: true,
+                    status: 200
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    data: [],
+                    msg: e,
+                    success: false,
+                    status: 400
+                })
+            })
+    }),
+
+    // reference list all consumer type
+    listConsumerType: ((req,res) => {
+        const { search, status } =  req.query
+
+        consumerTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+            .then(resData => {
+                return res.json({
+                    msg: 'Consumer Type fetched successfully',
+                    data: resData,
                     success: true,
                     status: 200
                 })
