@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const consumer = require('../model/consumer')
 const consumerDb = mongoose.model('consumer')
 
 module.exports = {

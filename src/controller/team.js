@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const team = require('../model/team')
 const teamDb = mongoose.model('team')
 
 module.exports = {
