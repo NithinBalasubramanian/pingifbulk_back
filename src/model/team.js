@@ -53,7 +53,7 @@ const teamSchema = new mongoose.Schema({
     modifiedBy: {
         type: String
     },
-    modifiedBy: {
+    modifiedOn: {
         type: Date
     }
 })

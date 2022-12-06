@@ -9,4 +9,6 @@ userRoute.post('/login',controller.userController.loginAuth)
 userRoute.get('/listusers',controller.userController.listUsers)
 userRoute.get('/listuser/:id',controller.userController.listUser)
 
+userRoute.get('/fetchUserType',controller.userController.listUserTypes)
+
 module.exports = userRoute
