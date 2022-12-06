@@ -1,5 +1,8 @@
 const mongoose = require('mongoose')
+require('../model/team')
+require('../model/teamType')
 const teamDb = mongoose.model('team')
+const teamTypesDb = mongoose.model('teamType')
 
 module.exports = {
     teamService: ((req,res) => {
@@ -73,5 +76,29 @@ module.exports = {
                     status: 400
                 })
             })
+    }),
+
+    // reference list all team type
+    listTeamTypes: ((req,res) => {
+        const { search, status } =  req.query
+
+        teamTypesDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+            .then(resData => {
+                return res.json({
+                    msg: 'Team Type fetched successfully',
+                    data: resData,
+                    success: true,
+                    status: 200
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    data: [],
+                    msg: e,
+                    success: false,
+                    status: 400
+                })
+            })
     })
+
 }

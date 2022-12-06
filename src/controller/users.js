@@ -7,8 +7,10 @@ const jwt = require('json-web-token')
 const sendMailFunction = require('../utility/mail')
 const Pingifbulk = require('../model/test')
 const userRegistration = require('../model/user')
+require('../model/userType')
 
 const userDb = mongoose.model('users')
+const userTypeDb = mongoose.model('userType')
 
 const jwtKey = require('../config/jwtConfig')
 
@@ -137,8 +139,29 @@ module.exports = {
                     status: 400
                 })
             })
-    }
+    },
+    // reference list user type
+    listUserTypes: ((req,res) => {
+        const { search, status } =  req.query
 
+        userTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+            .then(resData => {
+                return res.json({
+                    msg: 'User Type fetched successfully',
+                    data: resData,
+                    success: true,
+                    status: 200
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    data: [],
+                    msg: e,
+                    success: false,
+                    status: 400
+                })
+            })
+    })
 }
 
 
