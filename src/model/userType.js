@@ -5,13 +5,17 @@ const userTypeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    description : {
+        type: String
+    },
     status: {
         type: Number,
         default: 1,   // 1  active , 2 deleted , 3 blocked
         required: true
     },
     permissionType: {
-        type: Number  // 1 super admin , 2 admin
+        type: Number,  // 1 super admin , 2 admin
+        default: 2
     },
     createdOn: {
         type: Date,
