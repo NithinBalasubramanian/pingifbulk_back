@@ -161,6 +161,31 @@ module.exports = {
                     status: 400
                 })
             })
+    }),
+
+    // add user type
+    addUserType: ((req,res) => {
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description
+        }
+        userTypeDb.create(data)
+            .then(resData => {
+                return res.json({
+                    success: true,
+                    status: 200,
+                    msg: 'User type inserted successfully'
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
+
     })
 }
 

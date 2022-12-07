@@ -99,5 +99,31 @@ module.exports = {
                     status: 400
                 })
             })
+    }),
+
+
+    // add consumer type
+    addConsumerType: ((req,res) => {
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description
+        }
+        consumerTypeDb.create(data)
+            .then(resData => {
+                return res.json({
+                    success: true,
+                    status: 200,
+                    msg: 'Consumer type inserted successfully'
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
+
     })
 }

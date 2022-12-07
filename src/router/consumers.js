@@ -11,6 +11,6 @@ consumerRouter.post('/consumerUpdate/:id',controller.consumerController.consumer
 consumerRouter.post('/consumerStatusUpdate/:id',controller.consumerController.consumerUpdate)
 
 consumerRouter.get('/fetchConsumerType',controller.consumerController.listConsumerType)
-
+consumerRouter.post('/addConsumerType',controller.consumerController.addConsumerType)
 
 module.exports = consumerRouter
