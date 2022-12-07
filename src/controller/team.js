@@ -99,6 +99,31 @@ module.exports = {
                     status: 400
                 })
             })
+    }),
+
+    // add team type
+    addTeamType: ((req,res) => {
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description
+        }
+        teamTypesDb.create(data)
+            .then(resData => {
+                return res.json({
+                    success: true,
+                    status: 200,
+                    msg: 'Team type inserted successfully'
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
+
     })
 
 }
