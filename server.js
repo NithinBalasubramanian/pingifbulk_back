@@ -28,6 +28,9 @@ app.use('/v1/mailer',Router.MailerRouter)
 // Consumer management
 app.use('/v1/consumer',Router.ConsumerRouter)
 
+// Employee Management
+app.use('/v1/employee',Router.EmployeeRouter)
+
 // Team management
 app.use('/v1/team',Router.TeamRouter)
 
