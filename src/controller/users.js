@@ -186,6 +186,29 @@ module.exports = {
                 })
             })
 
+    }),
+
+    // fetch user by id
+    fetchUserById: ((req,res) => {
+        const { id } = req.params
+
+        userTypeDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'User Type fetched successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
     })
 }
 

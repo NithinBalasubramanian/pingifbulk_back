@@ -107,7 +107,9 @@ module.exports = {
         const payload = req.body
         const data = {
             typeName: payload.typeName,
-            description: payload.description
+            description: payload.description,
+            userId: 1,
+            createdBy: 1
         }
         consumerTypeDb.create(data)
             .then(resData => {
