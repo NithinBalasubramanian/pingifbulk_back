@@ -12,5 +12,7 @@ consumerRouter.post('/consumerStatusUpdate/:id',controller.consumerController.co
 
 consumerRouter.get('/fetchConsumerType',controller.consumerController.listConsumerType)
 consumerRouter.post('/addConsumerType',controller.consumerController.addConsumerType)
+consumerRouter.get('/fetchConsumerTypeById/:id',controller.consumerController.fetchConsumerById)
+consumerRouter.post('/updateConsumerType/:id',controller.consumerController.updateConsumerType)
 
 module.exports = consumerRouter

@@ -57,5 +57,58 @@ module.exports = {
                 })
             })
 
+    }),
+
+    // fetch Employee by id
+    fetchEmployeeById: ((req,res) => {
+        const { id } = req.params
+
+        employeeTypeDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'Employee Type fetched successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update Employee type
+    updateEmployeeType: ((req,res) => {
+        const { id } = req.params
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description,
+            modifiedBy: 1,
+            modifiedOn: new Date()
+        }
+
+        employeeTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Employee Type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
     })
 }
