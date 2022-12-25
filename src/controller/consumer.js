@@ -127,5 +127,57 @@ module.exports = {
                 })
             })
 
+    }),
+    // fetch Consumer by id
+    fetchConsumerById: ((req,res) => {
+        const { id } = req.params
+
+        consumerTypeDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer Type fetched successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update Consumer type
+    updateConsumerType: ((req,res) => {
+        const { id } = req.params
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description,
+            modifiedBy: 1,
+            modifiedOn: new Date()
+        }
+
+        consumerTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer Type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
     })
 }
