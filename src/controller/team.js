@@ -128,4 +128,57 @@ module.exports = {
 
     }),
 
+    // fetch team by id
+    fetchTeamById: ((req,res) => {
+        const { id } = req.params
+
+        teamTypesDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'Team Type fetched successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update team type
+    updateTeamType: ((req,res) => {
+        const { id } = req.params
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description,
+            modifiedBy: 1,
+            modifiedOn: new Date()
+        }
+
+        teamTypesDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Team Type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    })
+
 }

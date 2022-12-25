@@ -5,6 +5,9 @@ const teamTypeSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    description : {
+        type: String
+    },
     status: {
         type: Number,
         default: 1,

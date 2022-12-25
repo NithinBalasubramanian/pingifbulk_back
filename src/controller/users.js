@@ -209,6 +209,34 @@ module.exports = {
                 status: 400
             })
         })
+    }),
+
+    // update user type
+    updateUserType: ((req,res) => {
+        const { id } = req.params
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description
+        }
+
+        userTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'User Type fetched successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
     })
 }
 
