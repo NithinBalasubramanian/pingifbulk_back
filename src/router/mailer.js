@@ -6,5 +6,6 @@ const mailerRouter = express()
 mailerRouter.get('/',controller.mailerController)
 mailerRouter.get('/sendmail',controller.mailerController)
 mailerRouter.post('/mailSend',controller.mailerController)
+mailerRouter.post('/bulkMailSend',controller.mailerController)
 
 module.exports = mailerRouter

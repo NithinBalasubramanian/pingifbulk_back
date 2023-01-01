@@ -17,6 +17,7 @@ const sendMailFunction = async (mailDetails) => {
     const demoDetails = {
         from : "codeplayground123@gmail.com",
         to : mailDetails.toMailId,
+        // to: ['nithinfurie17@gmail.com', 'nithinmigo1@gmail.com', 'migomike97@gmail.com'],
         subject : mailDetails.subject,
         html : mailDetails.content
       }

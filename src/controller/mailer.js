@@ -53,4 +53,26 @@ mailerRouter.post('/mailSend',(req, res) => {
     })
 })
 
+// Send Multiple mail dynamic
+mailerRouter.post('/bulkMailSend',(req, res) => {
+    const { content, toMail, subject } = req.body
+    const mailData = {
+        toMailId : toMail,
+        subject : subject,
+        content : content
+    }
+    const state = sendMailFunction(mailData)
+    state.then(() => {
+        return res.json({
+            msg : 'success',
+            success: true
+        })
+    }).catch(e => {
+        return res.json({
+            msg : 'Failed',
+            success: false
+        })
+    })
+})
+
 module.exports = mailerRouter
