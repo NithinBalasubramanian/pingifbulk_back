@@ -12,6 +12,9 @@ require('../model/userType')
 const userDb = mongoose.model('users')
 const userTypeDb = mongoose.model('userType')
 
+const bcrypt = require('bcrypt');
+const saltRounds = 10
+const encryptKey = require('../config/encryptConfig')
 const jwtKey = require('../config/jwtConfig')
 
 module.exports = {
@@ -20,14 +23,20 @@ module.exports = {
             msg : "user router successfully"
         })
     },
-    addUser: function(req,res) {
+    addUser: async function(req,res) {
         const payload = req.body
-        const data = new userRegistration({
+
+        let password = payload.password
+        let hashPass = await encrypt(password)
+        const data = {
             userName: payload.userName,
             userMail: payload.userMail,
             contact: payload.contact,
-            password: payload.password,
-        })
+            password: hashPass,
+            type: 1
+        }
+
+        console.log(data)
 
         // v2 #1 Replace with mail template
         const mailTemplate = `<div><p>Hi ${payload.userName}</p><div><p>Welcome to pingifbulk, Happy to part of your business</p></div></div>`
@@ -39,26 +48,35 @@ module.exports = {
 
         // Mail sender
         sendMailFunction(mailData)
-        data.save((e) => {
-            if (e) {
-                return res.json({
-                    success: false,
-                    status: 400,
-                    msg: e
-                })
-            } else {
+        userDb.create(data)
+            .then(resData => {
                 return res.json({
                     success: true,
                     status: 200,
                     msg: 'User registered successfully'
                 })
-            }
-        })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
     },
     loginAuth: function(req,res) {
         const payload = req.body
-        userDb.find({ userMail : payload.userMail, password: payload.password })
+        userDb.find({ userMail : payload.userMail })
             .then((data) => {
+                bcrypt.compare(encryptKey, data[0].password, function(err, result) {
+                    if (!result) {
+                        return res.json({
+                            msg: 'Invalid Password',
+                            status: 400,
+                            success: false
+                        })
+                    }
+                });
                 // v1 #1 - Replace with env
                 const secret = jwtKey.jwtSupport.secretKey;
                 const payload = {
@@ -70,13 +88,13 @@ module.exports = {
                     if (err) {
                       console.error(err.name, err.message);
                     } else {    
-                        jwt.decode(secret, token, function (err_, decodedPayload, decodedHeader) {
-                            if (err) {
-                              console.error(err.name, err.message);
-                            } else {
-                              console.log(decodedPayload, decodedHeader);
-                            }
-                          });       
+                        // jwt.decode(secret, token, function (err_, decodedPayload, decodedHeader) {
+                        //     if (err) {
+                        //       console.error(err.name, err.message);
+                        //     } else {
+                        //       console.log(decodedPayload, decodedHeader);
+                        //     }
+                        //   });       
                         return res.json({
                             success: true,
                             status: 200,
@@ -92,7 +110,7 @@ module.exports = {
             })
             .catch(e => {
                 return res.json({
-                    msg: 'Invalid Username or Password',
+                    msg: 'Invalid Username ',
                     status: 400,
                     success: false
                 })
@@ -237,6 +255,13 @@ module.exports = {
                 status: 400
             })
         })
+    })
+}
+
+function encrypt(password) {
+
+    bcrypt.hash(password, saltRounds, function(err, hash) {
+        return hash
     })
 }
 
