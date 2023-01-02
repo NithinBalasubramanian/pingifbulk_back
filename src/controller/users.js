@@ -168,7 +168,15 @@ module.exports = {
     listUsers: function(req,res) {
         const { search, status, type } =  req.query
 
-        userDb.find({"userName": { $regex: '.*' + search + '.*', $options: 'i' }, status: status}).sort({ createdOn: -1})
+        const filters = {
+            "userName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
+
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        userDb.find(filters).sort({ createdOn: -1})
             .then(resData => {
                 return res.json({
                     data: resData,

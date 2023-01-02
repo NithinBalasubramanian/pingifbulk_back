@@ -35,8 +35,16 @@ module.exports = {
     // list consumers based on logged user
     listConsumers: ((req,res) => {
         const { search, status, type } =  req.query
+        const filters = {
+            "firstName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        consumerDb.find({"firstName": { $regex: '.*' + search + '.*', $options: 'i' }, status: status}).sort({ createdOn: -1})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+
+        consumerDb.find(filters).sort({ createdOn: -1})
             .then(resData => {
                 return res.json({
                     data: resData,
@@ -81,8 +89,15 @@ module.exports = {
     // reference list all consumer type
     listConsumerType: ((req,res) => {
         const { search, status } =  req.query
+        const filters = {
+            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        consumerTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        consumerTypeDb.find(filters)
             .then(resData => {
                 return res.json({
                     msg: 'Consumer Type fetched successfully',

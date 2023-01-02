@@ -12,8 +12,15 @@ module.exports = {
     // reference list all employee type
     listEmployeeType: ((req,res) => {
         const { search, status } =  req.query
+        const filters = {
+            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        employeeTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        employeeTypeDb.find(filters)
             .then(resData => {
                 return res.json({
                     msg: 'Employee Type fetched successfully',
