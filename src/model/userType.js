@@ -21,6 +21,9 @@ const userTypeSchema = new mongoose.Schema({
         type: Date,
         default: new Date()
     },
+    createdBy: {
+        type: String
+    },
     modifiedBy: {
         type: String
     },

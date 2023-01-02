@@ -104,11 +104,12 @@ module.exports = {
     // add team type
     addTeamType: ((req,res) => {
         const payload = req.body
+        const { userId } = req.user
         const data = {
             typeName: payload.typeName,
             description: payload.description,
             userId: 1,
-            createdBy: 1
+            createdBy: userId
         }
         teamTypesDb.create(data)
             .then(resData => {
@@ -154,18 +155,19 @@ module.exports = {
     // update team type
     updateTeamType: ((req,res) => {
         const { id } = req.params
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
             description: payload.description,
-            modifiedBy: 1,
+            modifiedBy: userId,
             modifiedOn: new Date()
         }
 
         teamTypesDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
         .then(resData => {
             return res.json({
-                msg: 'Team Type updated successfully',
+                msg: 'Team type updated successfully',
                 data: resData,
                 success: true,
                 status: 200

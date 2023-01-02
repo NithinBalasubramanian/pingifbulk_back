@@ -34,12 +34,13 @@ module.exports = {
 
     // add employee type
     addEmployeeType: ((req,res) => {
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
             description: payload.description,
             userId: 1,
-            createdBy: 1
+            createdBy: userId
         }
         employeeTypeDb.create(data)
             .then(resData => {
@@ -85,18 +86,19 @@ module.exports = {
     // update Employee type
     updateEmployeeType: ((req,res) => {
         const { id } = req.params
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
             description: payload.description,
-            modifiedBy: 1,
+            modifiedBy: userId,
             modifiedOn: new Date()
         }
 
         employeeTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
         .then(resData => {
             return res.json({
-                msg: 'Employee Type updated successfully',
+                msg: 'Employee type updated successfully',
                 data: resData,
                 success: true,
                 status: 200
