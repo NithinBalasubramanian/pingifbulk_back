@@ -35,8 +35,15 @@ module.exports = {
     // list consumers based on logged user
     listteams: ((req,res) => {
         const { search, status, type } =  req.query
+        const filters = {
+            "firstName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        teamDb.find({"firstName": { $regex: '.*' + search + '.*', $options: 'i' }, status: status}).sort({ createdOn: -1})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        teamDb.find(filters).sort({ createdOn: -1})
             .then(resData => {
                 return res.json({
                     data: resData,
