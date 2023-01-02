@@ -104,12 +104,13 @@ module.exports = {
 
     // add consumer type
     addConsumerType: ((req,res) => {
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
             description: payload.description,
             userId: 1,
-            createdBy: 1
+            createdBy: userId
         }
         consumerTypeDb.create(data)
             .then(resData => {
@@ -154,18 +155,19 @@ module.exports = {
     // update Consumer type
     updateConsumerType: ((req,res) => {
         const { id } = req.params
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
             description: payload.description,
-            modifiedBy: 1,
+            modifiedBy: userId,
             modifiedOn: new Date()
         }
 
         consumerTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
         .then(resData => {
             return res.json({
-                msg: 'Consumer Type updated successfully',
+                msg: 'Consumer type updated successfully',
                 data: resData,
                 success: true,
                 status: 200

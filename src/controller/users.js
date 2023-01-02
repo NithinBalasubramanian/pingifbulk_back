@@ -25,35 +25,32 @@ module.exports = {
     },
     addUser: async function(req,res) {
         const payload = req.body
+        const password = payload.password
+        bcrypt.hash(password, saltRounds)
+            .then(hash => {
+                const data = {
+                    userName: payload.userName,
+                    userMail: payload.userMail,
+                    contact: payload.contact,
+                    password: hash,
+                    type: 2
+                }
 
-        let password = payload.password
-        let hashPass = await encrypt(password)
-        const data = {
-            userName: payload.userName,
-            userMail: payload.userMail,
-            contact: payload.contact,
-            password: hashPass,
-            type: 1
-        }
-
-        console.log(data)
-
-        // v2 #1 Replace with mail template
-        const mailTemplate = `<div><p>Hi ${payload.userName}</p><div><p>Welcome to pingifbulk, Happy to part of your business</p></div></div>`
-        const mailData = {
-            toMailId : payload.userMail,
-            subject : 'Welcome to Pingifbulk',
-            content : mailTemplate
-        }
-
-        // Mail sender
-        sendMailFunction(mailData)
-        userDb.create(data)
-            .then(resData => {
-                return res.json({
-                    success: true,
-                    status: 200,
-                    msg: 'User registered successfully'
+                userDb.create(data)
+                .then(resData => {
+                    sendWelcomeMail(payload.userName, payload.userMail)
+                    return res.json({
+                        success: true,
+                        status: 200,
+                        msg: 'User registered successfully'
+                    })
+                })
+                .catch(e => {
+                    return res.json({
+                        success: false,
+                        status: 400,
+                        msg: e
+                    })
                 })
             })
             .catch(e => {
@@ -63,6 +60,58 @@ module.exports = {
                     msg: e
                 })
             })
+    },
+    // Update user subscription
+    updateUserSubscription: async function(req,res) {
+        const { userId } = req.user
+        const payloadData = {
+            consumerSubscription: req.body.subscription,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+        userDb.updateOne({_id: req.body.id}, payloadData)   
+        .then(resData => {
+            return res.json({
+                msg: 'User subsctiption updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    },
+    // update status of user 
+    updateUserStatus : function(req,res) {
+        const { userId } = req.user
+        const payloadData = {
+            status: req.body.status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+        userDb.updateOne({_id: req.body.id}, payloadData)   
+        .then(resData => {
+            return res.json({
+                msg: 'User subsctiption updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
     },
     loginAuth: function(req,res) {
         const payload = req.body
@@ -103,7 +152,7 @@ module.exports = {
                                 userName: data[0].userName,
                                 userMail: data[0].userMail
                             },
-                            msg: 'Loggedin successfully'
+                            msg: 'Logged in successfully'
                         })
                     }   
                 })
@@ -165,7 +214,7 @@ module.exports = {
         userTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
             .then(resData => {
                 return res.json({
-                    msg: 'User Type fetched successfully',
+                    msg: 'User type fetched successfully',
                     data: resData,
                     success: true,
                     status: 200
@@ -184,9 +233,11 @@ module.exports = {
     // add user type
     addUserType: ((req,res) => {
         const payload = req.body
+        const { userId } = req.user
         const data = {
             typeName: payload.typeName,
-            description: payload.description
+            description: payload.description,
+            createdBy: userId
         }
         userTypeDb.create(data)
             .then(resData => {
@@ -213,7 +264,7 @@ module.exports = {
         userTypeDb.find({_id: id})
         .then(resData => {
             return res.json({
-                msg: 'User Type fetched successfully',
+                msg: 'User type fetched successfully',
                 data: resData,
                 success: true,
                 status: 200
@@ -232,16 +283,19 @@ module.exports = {
     // update user type
     updateUserType: ((req,res) => {
         const { id } = req.params
+        const { userId } = req.user
         const payload = req.body
         const data = {
             typeName: payload.typeName,
-            description: payload.description
+            description: payload.description,
+            modifiedBy: userId,
+            modifiedOn: new Date()
         }
 
         userTypeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
         .then(resData => {
             return res.json({
-                msg: 'User Type fetched successfully',
+                msg: 'User type updated successfully',
                 data: resData,
                 success: true,
                 status: 200
@@ -258,13 +312,19 @@ module.exports = {
     })
 }
 
-function encrypt(password) {
+async function sendWelcomeMail(userName, userMail) {
+    
+        // v2 #1 Replace with mail template
+        const mailTemplate = `<div><p>Hi ${userName}</p><div><p>Welcome to pingifbulk, Happy to part of your business</p></div></div>`
+        const mailData = {
+            toMailId : userMail,
+            subject : 'Welcome to Pingifbulk',
+            content : mailTemplate
+        }
 
-    bcrypt.hash(password, saltRounds, function(err, hash) {
-        return hash
-    })
+        // Mail sender
+        await sendMailFunction(mailData)
 }
-
 
 // // Service check
 // userRoute.get('/',(req,res) => {

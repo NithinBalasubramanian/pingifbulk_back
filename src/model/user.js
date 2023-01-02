@@ -29,6 +29,12 @@ const userSchema = new mongoose.Schema({
     },
     consumerSubscription: {
         type: String
+    },
+    modifiedBy: {
+        type: String
+    },
+    modifiedOn: {
+        type: Date
     }
 })
 
