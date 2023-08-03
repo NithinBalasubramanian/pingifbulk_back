@@ -8,6 +8,9 @@ const consumerTypeSchema = new mongoose.Schema({
     description : {
         type: String
     },
+    orgName : {
+        type: String
+    },
     status: {
         type: Number,
         default: 1,

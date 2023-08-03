@@ -124,6 +124,7 @@ module.exports = {
         const data = {
             typeName: payload.typeName,
             description: payload.description,
+            orgName: payload.orgName,
             userId: 1,
             createdBy: userId
         }
@@ -175,6 +176,7 @@ module.exports = {
         const data = {
             typeName: payload.typeName,
             description: payload.description,
+            orgName: payload.orgName,
             modifiedBy: userId,
             modifiedOn: new Date()
         }
