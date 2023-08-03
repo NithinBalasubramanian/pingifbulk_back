@@ -10,7 +10,6 @@ const PORT = process.env.NODE_PORT || 8000;
 
 app.use(cors())
 app.use(express.json());
-app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // parse application/x-www-form-urlencoded
