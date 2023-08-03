@@ -178,6 +178,20 @@ module.exports = {
                     userName : { $regex: '.*' + search + '.*', $options: 'i' },
                     status: status ? parseInt(status) : 1
                 }
+            },
+            { 
+                $project: {
+                    _id: 1,
+                    userName: 1,
+                    userMail: 1,
+                    contact: 1,
+                    status: 1
+                }
+            },
+            {
+                $sort: {
+                    createdOn: 1
+                }
             }
         ])
         if (!data) { 
@@ -200,6 +214,7 @@ module.exports = {
             status: 400
         })
     }
+
 
         // Normal method
 
