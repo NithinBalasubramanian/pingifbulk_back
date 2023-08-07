@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const userTypeSchema = new mongoose.Schema({
     typeName : {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     description : {
         type: String
@@ -22,10 +23,10 @@ const userTypeSchema = new mongoose.Schema({
         default: new Date()
     },
     createdBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedOn: {
         type: Date

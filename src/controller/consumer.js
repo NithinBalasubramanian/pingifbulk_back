@@ -13,8 +13,25 @@ module.exports = {
 
     // Add consumers
     consumerAdd: ((req,res) => {
+        const data = req.body
+        const consumerData = {
+            firstName: data.firstName,
+            middleName: data.middleName ?? '',
+            lastName: data.lastName,
+            contact: data.contact,
+            mailId: data.mailId,
+            description: data.description,
+            consumerTypeId: data.consumerType,
+            status: 1,
+            creatorType: 2,
+            createdBy: req.user?.userId,
+            createdOn: new Date()
+        }
+
+        const createdData = consumerDb.create(consumerData)
         return res.json({
-            msg: 'Common service working fine'
+            msg: 'Consumer Added Successfully',
+            data: createdData
         })
     }),
 
@@ -33,34 +50,78 @@ module.exports = {
     }),
 
     // list consumers based on logged user
-    listConsumers: ((req,res) => {
+    listConsumers: (async (req,res) => {
         const { search, status, type } =  req.query
-        const filters = {
-            "firstName": { $regex: '.*' + search + '.*', $options: 'i' }
-        }
 
-        if (status && status !== '') {
-            filters['status'] = status
-        }
+        try {
 
-
-        consumerDb.find(filters).sort({ createdOn: -1})
-            .then(resData => {
+            const data = await consumerDb.aggregate([
+                {
+                    $match: { 
+                        firstName : { $regex: '.*' + search + '.*', $options: 'i' },
+                        status: status ? parseInt(status) : 1
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'consumertypes',
+                        localField: 'consumerTypeId',
+                        foreignField: '_id',
+                        as: 'consumerType'
+                    }
+                },
+                {
+                    $unwind: '$consumerType'
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'createdBy',
+                        foreignField: '_id',
+                        as: 'createdByUser'
+                    }
+                },
+                {
+                    $unwind: '$createdByUser'
+                },
+                { 
+                    $project: {
+                        _id: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        mailId: 1,
+                        contact: 1,
+                        status: 1,
+                        consumerType: 1,
+                        createdByUser: 1
+                    }
+                },
+                {
+                    $sort: {
+                        createdOn: 1
+                    }
+                }
+            ])
+            if (!data) { 
                 return res.json({
-                    data: resData,
-                    msg: 'Consumers fetched successfully',
-                    success: true,
-                    status: 200
-                })
-            })
-            .catch(e => {
-                return res.json({
-                    data: [],
-                    msg: e,
+                    msg: 'Consumer fetching unsuccessful',
                     success: false,
                     status: 400
                 })
+            } 
+            return res.json({
+                data: data,
+                msg: 'Consumer fetched successfully',
+                success: true,
+                status: 200
             })
+        } catch (e) {
+            return res.json({
+                msg: e,
+                success: false,
+                status: 400
+            })
+        }
     }),
 
     // List consumer data by id

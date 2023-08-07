@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const teamSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     middleName: {
         type: String
@@ -35,7 +36,7 @@ const teamSchema = new mongoose.Schema({
         required: true   // 1 - Active , 2 - In Active 
     },
     type: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true  // Types based on employee type
     },
     creatorType: {
@@ -43,7 +44,7 @@ const teamSchema = new mongoose.Schema({
         default: 1
     },
     createdBy: {
-        type: String,  // By user id or staff of user id
+        type: mongoose.Types.ObjectId,  // By user id or staff of user id
         required: true
     },
     createdOn: {
@@ -51,7 +52,7 @@ const teamSchema = new mongoose.Schema({
         default: new Date()
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedOn: {
         type: Date

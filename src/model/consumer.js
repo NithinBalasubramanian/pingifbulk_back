@@ -3,7 +3,8 @@ const mongoose = require('mongoose')
 const consumerSchema = new mongoose.Schema({
     firstName: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     middleName: {
         type: String
@@ -20,9 +21,12 @@ const consumerSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    userId: {
-        type: String,
+    consumerTypeId: {
+        type: mongoose.Types.ObjectId,
         required: true
+    },
+    description: {
+        type: String
     },
     type: {
         type: Number,   // TYpe of consumer based on consumer type table (optional)
@@ -36,7 +40,7 @@ const consumerSchema = new mongoose.Schema({
         default: 1
     },
     createdBy: {
-        type: String,  // By user id or staff of user id
+        type: mongoose.Types.ObjectId,  // By user id or staff of user id
         required: true
     },
     createdOn: {
@@ -44,7 +48,7 @@ const consumerSchema = new mongoose.Schema({
         default: new Date()
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedBy: {
         type: Date
