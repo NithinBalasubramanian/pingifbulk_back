@@ -18,11 +18,11 @@ const employeeTypeSchema = new mongoose.Schema({
         default: 0   // 0 if not common , 1 if common can be only added by admin
     },
     userId: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true
     },
     createdBy: {
-        type: String,  // By user
+        type: mongoose.Types.ObjectId,  // By user
         required: true
     },
     createdOn: {
@@ -30,7 +30,7 @@ const employeeTypeSchema = new mongoose.Schema({
         default: new Date()
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedOn: {
         type: Date
