@@ -8,6 +8,9 @@ const consumerTypeSchema = new mongoose.Schema({
     description : {
         type: String
     },
+    orgName : {
+        type: String
+    },
     status: {
         type: Number,
         default: 1,
@@ -22,7 +25,7 @@ const consumerTypeSchema = new mongoose.Schema({
         required: true
     },
     createdBy: {
-        type: String,  // By user
+        type: mongoose.Types.ObjectId,  // By user
         required: true
     },
     createdOn: {
@@ -30,7 +33,7 @@ const consumerTypeSchema = new mongoose.Schema({
         default: new Date()
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedOn: {
         type: Date

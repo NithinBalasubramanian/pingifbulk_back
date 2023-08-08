@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 const userSchema = new mongoose.Schema({
     userName: {
         type: String,
-        required: true
+        required: true,
+        unique: true
     },
     userMail: {
         type: String,
@@ -17,7 +18,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     type: {
-        type: Number
+        type: mongoose.Types.ObjectId
     },
     status: {
         type: Number,
@@ -28,10 +29,10 @@ const userSchema = new mongoose.Schema({
         default: new Date()
     },
     consumerSubscription: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedBy: {
-        type: String
+        type: mongoose.Types.ObjectId
     },
     modifiedOn: {
         type: Date
