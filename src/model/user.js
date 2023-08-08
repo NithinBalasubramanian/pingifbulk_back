@@ -28,7 +28,7 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: new Date()
     },
-    consumerSubscription: {
+    createdBy: {
         type: mongoose.Types.ObjectId
     },
     modifiedBy: {

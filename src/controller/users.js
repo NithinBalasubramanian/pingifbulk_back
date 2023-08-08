@@ -33,7 +33,9 @@ module.exports = {
                     userMail: payload.userMail,
                     contact: payload.contact,
                     password: hash,
-                    type: 2
+                    type: payload.userTypeId,
+                    status: 1,
+                    // createdBy: req.user?.userId
                 }
 
                 userDb.create(data)
@@ -179,13 +181,25 @@ module.exports = {
                     status: status ? parseInt(status) : 1
                 }
             },
+            {
+                $lookup: {
+                    from: 'usertypes',
+                    localField: 'type',
+                    foreignField: '_id',
+                    as: 'userType'
+                }
+            },
+            {
+                $unwind: '$userType'
+            },
             { 
                 $project: {
                     _id: 1,
                     userName: 1,
                     userMail: 1,
                     contact: 1,
-                    status: 1
+                    status: 1,
+                    userType: '$userType.typeName'
                 }
             },
             {
