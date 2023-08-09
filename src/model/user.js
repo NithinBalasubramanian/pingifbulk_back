@@ -28,9 +28,6 @@ const userSchema = new mongoose.Schema({
         type: Date,
         default: new Date()
     },
-    createdBy: {
-        type: mongoose.Types.ObjectId
-    },
     modifiedBy: {
         type: mongoose.Types.ObjectId
     },

@@ -1,6 +1,8 @@
 const mongoose = require('mongoose')
 require('../model/employeeType')
+require('../model/employee')
 const employeeTypeDb = mongoose.model('employeetypes')
+const employeeDb = mongoose.model('employee')
 
 module.exports = {
     checkService: ((req,res) => {
@@ -119,5 +121,103 @@ module.exports = {
                 status: 400
             })
         })
+    }),
+
+    // Add Employee
+    addEmployeeData: ((req,res) => {
+        const data = req.body
+        const employeeData = {
+            firstName: data.firstName,
+            middleName: data.middleName ?? '',
+            lastName: data.lastName,
+            contact: data.contact,
+            mailId: data.mailId,
+            description: data.description,
+            employeeTypeId: data.employeeTypeId,
+            status: 1,
+            creatorType: 1,
+            createdBy: req.user?.userId
+        }
+
+        const createdData = employeeDb.create(employeeData)
+        return res.json({
+            msg: 'Employee Added Successfully',
+            data: createdData
+        })
+    }),
+
+    // List employees
+    listEmployees: (async (req,res) => {
+        const { search, status, type } =  req.query
+
+        try {
+
+            const data = await employeeDb.aggregate([
+                {
+                    $match: { 
+                        firstName : { $regex: '.*' + search + '.*', $options: 'i' },
+                        status: status ? parseInt(status) : 1
+                    }
+                },
+                {
+                    $lookup: {
+                        from: 'employeetypes',
+                        localField: 'employeeTypeId',
+                        foreignField: '_id',
+                        as: 'employeeType'
+                    }
+                },
+                {
+                    $unwind: '$employeeType'
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'createdBy',
+                        foreignField: '_id',
+                        as: 'createdByUser'
+                    }
+                },
+                {
+                    $unwind: '$createdByUser'
+                },
+                { 
+                    $project: {
+                        _id: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        mailId: 1,
+                        contact: 1,
+                        status: 1,
+                        employeeType: '$employeeType.employeeType',
+                        creatorName: '$createdByUser.userName'
+                    }
+                },
+                {
+                    $sort: {
+                        createdOn: 1
+                    }
+                }
+            ])
+            if (!data) { 
+                return res.json({
+                    msg: 'Employee fetching unsuccessful',
+                    success: false,
+                    status: 400
+                })
+            } 
+            return res.json({
+                data: data,
+                msg: 'Employee fetched successfully',
+                success: true,
+                status: 200
+            })
+        } catch (e) {
+            return res.json({
+                msg: e,
+                success: false,
+                status: 400
+            })
+        }
     })
 }

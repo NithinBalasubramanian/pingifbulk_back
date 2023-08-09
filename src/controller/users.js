@@ -23,6 +23,7 @@ module.exports = {
             msg : "user router successfully"
         })
     },
+    // Add User
     addUser: async function(req,res) {
         const payload = req.body
         const password = payload.password
@@ -34,8 +35,7 @@ module.exports = {
                     contact: payload.contact,
                     password: hash,
                     type: payload.userTypeId,
-                    status: 1,
-                    // createdBy: req.user?.userId
+                    status: 1
                 }
 
                 userDb.create(data)
