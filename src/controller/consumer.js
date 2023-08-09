@@ -92,8 +92,8 @@ module.exports = {
                         mailId: 1,
                         contact: 1,
                         status: 1,
-                        consumerType: 1,
-                        createdByUser: 1
+                        consumerType: '$consumerType.consumerType',
+                        creatorName: '$createdByUser.userName'
                     }
                 },
                 {
