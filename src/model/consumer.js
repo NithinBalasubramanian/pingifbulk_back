@@ -50,7 +50,7 @@ const consumerSchema = new mongoose.Schema({
     modifiedBy: {
         type: mongoose.Types.ObjectId
     },
-    modifiedBy: {
+    modifiedOn: {
         type: Date
     }
 })

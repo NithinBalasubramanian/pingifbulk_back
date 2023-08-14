@@ -146,6 +146,43 @@ module.exports = {
         })
     }),
 
+    // update EMployee 
+    updateEmployeeData: ((req,res) => {
+        const { id } = req.params
+        const { userId } = req.user
+        const data = req.body
+        const employeeData = {
+            firstName: data.firstName,
+            middleName: data.middleName ?? '',
+            lastName: data.lastName,
+            contact: data.contact,
+            mailId: data.mailId,
+            description: data.description,
+            employeeTypeId: data.employeeTypeId,
+            status: 1,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        employeeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Employee updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
     // List employees
     listEmployees: (async (req,res) => {
         const { search, status, type } =  req.query

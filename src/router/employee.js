@@ -14,6 +14,7 @@ EmployeeRouter.post('/updateEmployeeType/:id', Auth, controller.employeeControll
 
 // Employee based routes
 EmployeeRouter.post('/addEmployee', Auth, controller.employeeController.addEmployeeData)
+EmployeeRouter.post('/updateEmployee/:id', Auth, controller.employeeController.updateEmployeeData)
 EmployeeRouter.get('/listEmployees', Auth, controller.employeeController.listEmployees)
 
 module.exports = EmployeeRouter

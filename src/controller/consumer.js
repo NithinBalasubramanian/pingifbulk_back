@@ -37,8 +37,38 @@ module.exports = {
 
     // Update consumers
     consumerUpdate: ((req,res) => {
-        return res.json({
-            msg: 'Common service working fine'
+        const { id } = req.params
+        const data = req.body
+        const consumerData = {
+            firstName: data.firstName,
+            middleName: data.middleName ?? '',
+            lastName: data.lastName,
+            contact: data.contact,
+            mailId: data.mailId,
+            description: data.description,
+            consumerTypeId: data.consumerType,
+            status: 1,
+            creatorType: 2,
+            modifiedBy: req.user?.userId,
+            modifiedOn: new Date()
+        }
+
+        consumerDb.updateOne({_id: id}, consumerData, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
         })
     }),
 
