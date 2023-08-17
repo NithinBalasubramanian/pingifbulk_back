@@ -16,6 +16,7 @@ userRoute.get('/fetchUserType', Auth, controller.userController.listUserTypes)
 userRoute.post('/addUserType', Auth, controller.userController.addUserType)
 userRoute.get('/fetchUserTypeById/:id', Auth, controller.userController.fetchUserById)
 userRoute.post('/updateUserType/:id', Auth, controller.userController.updateUserType)
+userRoute.get('/updateUserTypeStatus/:id/:status', Auth, controller.userController.updateUserTypeStatus)
 
 
 
