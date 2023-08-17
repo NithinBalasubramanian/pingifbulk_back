@@ -74,8 +74,26 @@ module.exports = {
 
     // Change status
     consumerStatusUpdate: ((req,res) => {
-        return res.json({
-            msg: 'Common service working fine'
+        const { id, status } = req.params
+        const consumerData = {
+            status: status
+        }
+        consumerDb.updateOne({_id: id}, consumerData)   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer status updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
         })
     }),
 
@@ -83,14 +101,21 @@ module.exports = {
     listConsumers: (async (req,res) => {
         const { search, status, type } =  req.query
 
+        const condition = {}
+
+        if (search && search !== '') {
+            condition['firstName'] = { $regex: '.*' + search + '.*', $options: 'i' }   
+        }
+
+        if (status && status !== '') {
+            condition['status'] = parseInt(status)
+        }
+
         try {
 
             const data = await consumerDb.aggregate([
                 {
-                    $match: { 
-                        firstName : { $regex: '.*' + search + '.*', $options: 'i' },
-                        status: status ? parseInt(status) : 1
-                    }
+                    $match: condition
                 },
                 {
                     $lookup: {
@@ -236,6 +261,7 @@ module.exports = {
             })
 
     }),
+
     // fetch Consumer by id
     fetchConsumerById: ((req,res) => {
         const { id } = req.params
@@ -276,6 +302,35 @@ module.exports = {
         .then(resData => {
             return res.json({
                 msg: 'Consumer type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+     // update Consumer type status
+     updateConsumerTypeStatus: ((req,res) => {
+        const { id, status } = req.params
+        const { userId } = req.user
+        const data = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        consumerTypeDb.updateOne({_id: id}, data)  
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer type status updated successfully',
                 data: resData,
                 success: true,
                 status: 200
