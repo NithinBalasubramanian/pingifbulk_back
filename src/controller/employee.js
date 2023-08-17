@@ -123,6 +123,35 @@ module.exports = {
         })
     }),
 
+    // update Employee type status
+    updateEmployeeTypeStatus: ((req,res) => {
+        const { id, status } = req.params
+        const { userId } = req.user
+        const data = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        employeeTypeDb.updateOne({_id: id}, data)  
+        .then(resData => {
+            return res.json({
+                msg: 'Employee type  status updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
     // Add Employee
     addEmployeeData: ((req,res) => {
         const data = req.body
@@ -164,7 +193,36 @@ module.exports = {
             modifiedOn: new Date()
         }
 
-        employeeDb.updateOne({_id: id}, data, { upsert: true })   // upsert - inserts data if not found
+        employeeDb.updateOne({_id: id}, employeeData, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Employee updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update EMployee status
+    updateEmployeeDataStatus: ((req,res) => {
+        const { id, status } = req.params
+        const { userId } = req.user
+        const employeeData = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        employeeDb.updateOne({_id: id}, employeeData)   
         .then(resData => {
             return res.json({
                 msg: 'Employee updated successfully',
@@ -186,15 +244,22 @@ module.exports = {
     // List employees
     listEmployees: (async (req,res) => {
         const { search, status, type } =  req.query
+        const condition = {}
+
+        if (search && search !== '') {
+            condition['firstName'] = { $regex: '.*' + search + '.*', $options: 'i' }   
+        }
+
+        if (status && status !== '') {
+            condition['status'] = parseInt(status)
+        }
+
 
         try {
 
             const data = await employeeDb.aggregate([
                 {
-                    $match: { 
-                        firstName : { $regex: '.*' + search + '.*', $options: 'i' },
-                        status: status ? parseInt(status) : 1
-                    }
+                    $match: condition
                 },
                 {
                     $lookup: {

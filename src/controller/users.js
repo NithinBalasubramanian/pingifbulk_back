@@ -23,6 +23,7 @@ module.exports = {
             msg : "user router successfully"
         })
     },
+
     // Add User
     addUser: async function(req,res) {
         const payload = req.body
@@ -63,6 +64,7 @@ module.exports = {
                 })
             })
     },
+
     // Update user subscription
     updateUserSubscription: async function(req,res) {
         const { userId } = req.user
@@ -89,6 +91,7 @@ module.exports = {
             })
         })
     },
+
     // update status of user 
     updateUserStatus : function(req,res) {
         const { userId } = req.user
@@ -115,6 +118,7 @@ module.exports = {
             })
         })
     },
+
     loginAuth: function(req,res) {
         const payload = req.body
         userDb.find({ userMail : payload.userMail })
@@ -167,8 +171,19 @@ module.exports = {
                 })
             }) 
     },
+
     listUsers: async function(req,res) {
         const { search, status, type } =  req.query
+
+        const condition = {}
+
+        if (search && search !== '') {
+            condition['userName'] = { $regex: '.*' + search + '.*', $options: 'i' }
+        }
+
+        if (status && status !== '') {
+            condition['status'] = status
+        }
         
         // Aggregate method
 
@@ -176,10 +191,7 @@ module.exports = {
 
         const data = await userDb.aggregate([
             {
-                $match: { 
-                    userName : { $regex: '.*' + search + '.*', $options: 'i' },
-                    status: status ? parseInt(status) : 1
-                }
+                $match: condition
             },
             {
                 $lookup: {
@@ -258,6 +270,7 @@ module.exports = {
         //         })
         //     })
     },
+    
     listUser: function(req,res) {
         const { id } =  req.params
 
@@ -279,6 +292,7 @@ module.exports = {
                 })
             })
     },
+
     // reference list user type
     listUserTypes: ((req,res) => {
         const { search, status } =  req.query
@@ -368,6 +382,35 @@ module.exports = {
         .then(resData => {
             return res.json({
                 msg: 'User type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update user type status
+    updateUserTypeStatus: ((req,res) => {
+        const { id, status } = req.params
+        const { userId } = req.user
+        const data = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        userTypeDb.updateOne({_id: id}, data)   
+        .then(resData => {
+            return res.json({
+                msg: 'User type status updated successfully',
                 data: resData,
                 success: true,
                 status: 200
