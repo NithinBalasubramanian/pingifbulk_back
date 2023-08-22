@@ -137,7 +137,29 @@ module.exports = {
                     }
                 },
                 {
-                    $unwind: '$createdByUser'
+                    $lookup: {
+                        from: 'employees',
+                        localField: 'createdBy',
+                        foreignField: '_id',
+                        as: 'createdByEmployee'
+                    }
+                },
+                {
+                    $addFields: {
+                        "createdBy": {
+                            $cond: {
+                                    if: { $gte: [
+                                        { $size:  "$createdByUser" },
+                                        1
+                                    ]}, 
+                                    then: "$createdByUser.userName",
+                                    else: "$createdByEmployee.firstName"
+                            }
+                        }
+                    }
+                },
+                {
+                    $unwind: '$createdBy'
                 },
                 { 
                     $project: {
@@ -148,7 +170,7 @@ module.exports = {
                         contact: 1,
                         status: 1,
                         consumerType: '$consumerType.consumerType',
-                        creatorName: '$createdByUser.userName'
+                        createdBy: '$createdBy'
                     }
                 },
                 {

@@ -28,15 +28,15 @@ const consumerSchema = new mongoose.Schema({
     description: {
         type: String
     },
-    type: {
-        type: Number,   // TYpe of consumer based on consumer type table (optional)
+    group: {
+        type: Number,   // TYpe of consumer based on consumer group table (optional)
     },
     status: {
         type: Number,
         default: 1   // 1 - Active, 2 - Deleted
     },
     creatorType: {
-        type: Number,  // 1 - User , 2 - Staff
+        type: Number,  // 1 - User , 2 - Employee
         default: 1
     },
     createdBy: {
