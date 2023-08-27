@@ -142,14 +142,7 @@ module.exports = {
                   jwt.encode(secret, payload, function (err, token) {
                     if (err) {
                       console.error(err.name, err.message);
-                    } else {    
-                        // jwt.decode(secret, token, function (err_, decodedPayload, decodedHeader) {
-                        //     if (err) {
-                        //       console.error(err.name, err.message);
-                        //     } else {
-                        //       console.log(decodedPayload, decodedHeader);
-                        //     }
-                        //   });       
+                    } else {         
                         return res.json({
                             success: true,
                             status: 200,
