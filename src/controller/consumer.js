@@ -161,14 +161,18 @@ module.exports = {
                 {
                     $unwind: '$createdBy'
                 },
+                {
+                    $addFields: {
+                        "consumerName": { $concat: ['$firstName', ' ', '$lastName']}
+                    } 
+                },
                 { 
                     $project: {
                         _id: 1,
-                        firstName: 1,
-                        lastName: 1,
                         mailId: 1,
                         contact: 1,
                         status: 1,
+                        consumerName: 1,
                         consumerType: '$consumerType.consumerType',
                         createdBy: '$createdBy'
                     }
