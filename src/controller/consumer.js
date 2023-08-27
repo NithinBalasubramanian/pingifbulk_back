@@ -147,14 +147,14 @@ module.exports = {
                 {
                     $addFields: {
                         "createdBy": {
-                            $cond: {
-                                    if: { $gte: [
+                            $cond: [
+                                    { $gte: [
                                         { $size:  "$createdByUser" },
                                         1
                                     ]}, 
-                                    then: "$createdByUser.userName",
-                                    else: "$createdByEmployee.firstName"
-                            }
+                                    "$createdByUser.userName",
+                                    "$createdByEmployee.firstName"
+                                ]
                         }
                     }
                 },
