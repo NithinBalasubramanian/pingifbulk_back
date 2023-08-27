@@ -283,11 +283,15 @@ module.exports = {
                 {
                     $unwind: '$createdByUser'
                 },
+                {
+                    $addFields: {
+                        "employeeName": { $concat: ['$firstName', ' ', '$lastName']}
+                    } 
+                },
                 { 
                     $project: {
                         _id: 1,
-                        firstName: 1,
-                        lastName: 1,
+                        employeeName: 1,
                         mailId: 1,
                         contact: 1,
                         status: 1,
