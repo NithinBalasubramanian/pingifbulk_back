@@ -88,8 +88,15 @@ module.exports = {
     // reference list all team type
     listTeamTypes: ((req,res) => {
         const { search, status } =  req.query
+        const filters = {
+            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        teamTypesDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        teamTypesDb.find(filters)
             .then(resData => {
                 return res.json({
                     msg: 'Team Type fetched successfully',
@@ -115,7 +122,7 @@ module.exports = {
         const data = {
             typeName: payload.typeName,
             description: payload.description,
-            userId: 1,
+            userId: userId,
             createdBy: userId
         }
         teamTypesDb.create(data)
@@ -175,6 +182,35 @@ module.exports = {
         .then(resData => {
             return res.json({
                 msg: 'Team type updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+    // update team type status
+    updateTeamTypeStatus: ((req,res) => {
+        const { id, status } = req.params
+        const { userId } = req.user
+        const data = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        teamTypesDb.updateOne({_id: id}, data)  
+        .then(resData => {
+            return res.json({
+                msg: 'Team type status updated successfully',
                 data: resData,
                 success: true,
                 status: 200

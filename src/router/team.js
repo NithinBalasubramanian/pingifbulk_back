@@ -15,5 +15,6 @@ TeamRouter.get('/fetchTeamTypes', Auth, controller.teamController.listTeamTypes)
 TeamRouter.post('/addTeamType', Auth, controller.teamController.addTeamType)
 TeamRouter.get('/fetchTeamTypeById/:id', Auth, controller.teamController.fetchTeamById)
 TeamRouter.post('/updateTeamType/:id', Auth, controller.teamController.updateTeamType)
+TeamRouter.get('/updateTeamTypeStatus/:id/:status', Auth, controller.teamController.updateTeamTypeStatus)
 
 module.exports = TeamRouter
