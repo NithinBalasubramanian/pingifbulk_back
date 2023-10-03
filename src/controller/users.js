@@ -288,9 +288,16 @@ module.exports = {
 
     // reference list user type
     listUserTypes: ((req,res) => {
-        const { search, status } =  req.query
+        const { search, status } =  req.query     
+        const filters = {
+            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        }
 
-        userTypeDb.find({status : status, typeName: { $regex: '.*' + search + '.*'}})
+        if (status && status !== '') {
+            filters['status'] = status
+        }
+
+        userTypeDb.find(filters)
             .then(resData => {
                 return res.json({
                     msg: 'User type fetched successfully',
