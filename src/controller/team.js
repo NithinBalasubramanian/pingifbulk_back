@@ -27,8 +27,30 @@ module.exports = {
 
     // Change status
     teamStatusUpdate: ((req,res) => {
-        return res.json({
-            msg: 'Team service working fine'
+        const { id, status } = req.params
+        const { userId } = req.user
+        const data = {
+            status: status,
+            modifiedBy: userId,
+            modifiedOn: new Date()
+        }
+
+        teamDb.updateOne({_id: id}, data)  
+        .then(resData => {
+            return res.json({
+                msg: 'Team status updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
         })
     }),
 
