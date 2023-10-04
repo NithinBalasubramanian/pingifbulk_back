@@ -94,13 +94,14 @@ module.exports = {
 
     // update status of user 
     updateUserStatus : function(req,res) {
+        const { id, status } = req.params
         const { userId } = req.user
         const payloadData = {
-            status: req.body.status,
+            status: status,
             modifiedBy: userId,
             modifiedOn: new Date()
         }
-        userDb.updateOne({_id: req.body.id}, payloadData)   
+        userDb.updateOne({_id: id}, payloadData)   
         .then(resData => {
             return res.json({
                 msg: 'User subsctiption updated successfully',
