@@ -173,7 +173,7 @@ module.exports = {
                         contact: 1,
                         status: 1,
                         consumerName: 1,
-                        consumerType: '$consumerType.consumerType',
+                        consumerType: '$consumerType.typeName',
                         createdBy: '$createdBy'
                     }
                 },
@@ -231,8 +231,9 @@ module.exports = {
     // reference list all consumer type
     listConsumerType: ((req,res) => {
         const { search, status } =  req.query
-        const filters = {
-            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        const filters = {}
+        if (search && search !== '') {
+            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {

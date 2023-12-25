@@ -289,9 +289,10 @@ module.exports = {
 
     // reference list user type
     listUserTypes: ((req,res) => {
-        const { search, status } =  req.query     
-        const filters = {
-            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        const { search, status } =  req.query 
+        const filters = {}  
+        if (search && search !== '') {  
+            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
