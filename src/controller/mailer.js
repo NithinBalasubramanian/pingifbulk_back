@@ -1,6 +1,15 @@
 const express = require('express');
 const sendMailFunction = require('../utility/mail')
 
+const mongoose = require('mongoose')
+require('../model/consumer')
+require('../model/user')
+require('../model/employee')
+
+const consumerDb = mongoose.model('consumer')
+const userDb = mongoose.model('users')
+const employeeDb = mongoose.model('employee')
+
 const mailerRouter = express();
 
 mailerRouter.get('/',(req,res) => {
@@ -72,6 +81,74 @@ mailerRouter.post('/bulkMailSend',(req, res) => {
             msg : 'Failed',
             success: false
         })
+    })
+})
+
+// Fetch mails based on category types
+mailerRouter.post('/fetchMailsByType', async (req,res) => {
+    const { categoryType, typeId } = req.body
+
+    let data = []
+
+    switch (categoryType) {
+        case '1':
+            data = await consumerDb.aggregate([
+                {
+                    $match: { "consumerTypeId": mongoose.Types.ObjectId(typeId), "status": 1 }
+                },
+                {
+                        $project: {
+                            mailId: 1
+                        }
+                }
+            ])
+            break;
+        case '2':
+            data = await userDb.aggregate([
+                {
+                    $match: { "type": mongoose.Types.ObjectId(typeId), "status": 1 }
+                },
+                {
+                    $addFields: {
+                        mailId: "$userMail"
+                    }
+                },
+                {
+                        $project: {
+                            mailId: 1
+                        }
+                }
+            ])
+            break;
+        case '3':
+            data = await employeeDb.aggregate([
+                {
+                    $match: { "employeeTypeId": mongoose.Types.ObjectId(typeId), "status": 1 }
+                },
+                {
+                        $project: {
+                            mailId: 1
+                        }
+                }
+            ])
+            break;
+        default:
+            break;
+    }
+
+
+    if (!data) { 
+        return res.json({
+            msg: 'Emails fetching unsuccessful',
+            success: false,
+            status: 400
+        })
+    } 
+    return res.json({
+        data: data,
+        msg: 'Emails fetched successfully',
+        success: true,
+        status: 200
     })
 })
 

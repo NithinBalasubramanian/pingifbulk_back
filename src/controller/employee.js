@@ -14,8 +14,10 @@ module.exports = {
     // reference list all employee type
     listEmployeeType: ((req,res) => {
         const { search, status } =  req.query
-        const filters = {
-            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+        const filters = {}
+        
+        if (search && search !== '') {
+            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -48,7 +50,7 @@ module.exports = {
         const data = {
             typeName: payload.typeName,
             description: payload.description,
-            userId: 1,
+            userId: userId,
             createdBy: userId
         }
         employeeTypeDb.create(data)
