@@ -21,7 +21,7 @@ module.exports = {
             contact: data.contact,
             mailId: data.mailId,
             description: data.description,
-            consumerTypeId: data.consumerType,
+            consumerTypeId: data.consumerTypeId,
             status: 1,
             creatorType: 2,
             createdBy: req.user?.userId,
@@ -46,7 +46,7 @@ module.exports = {
             contact: data.contact,
             mailId: data.mailId,
             description: data.description,
-            consumerTypeId: data.consumerType,
+            consumerTypeId: data.consumerTypeId,
             status: 1,
             creatorType: 2,
             modifiedBy: req.user?.userId,
@@ -228,6 +228,29 @@ module.exports = {
             })
     }),
 
+    // fetch Consumer by id
+    fetchConsumerById: ((req,res) => {
+        const { id } = req.params
+
+        consumerDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'Consumer fetched successfully',
+                data: resData[0],
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
     // reference list all consumer type
     listConsumerType: ((req,res) => {
         const { search, status } =  req.query
@@ -289,8 +312,8 @@ module.exports = {
 
     }),
 
-    // fetch Consumer by id
-    fetchConsumerById: ((req,res) => {
+    // fetch Consumer type by id
+    fetchConsumerTypeById: ((req,res) => {
         const { id } = req.params
 
         consumerTypeDb.find({_id: id})
