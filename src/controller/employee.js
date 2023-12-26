@@ -75,11 +75,34 @@ module.exports = {
     fetchEmployeeById: ((req,res) => {
         const { id } = req.params
 
+        employeeDb.find({_id: id})
+        .then(resData => {
+            return res.json({
+                msg: 'Employee fetched successfully',
+                data: resData[0],
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
+        })
+    }),
+
+      // fetch Employee by id
+      fetchEmployeeTypeById: ((req,res) => {
+        const { id } = req.params
+
         employeeTypeDb.find({_id: id})
         .then(resData => {
             return res.json({
                 msg: 'Employee Type fetched successfully',
-                data: resData,
+                data: resData[0],
                 success: true,
                 status: 200
             })
@@ -173,6 +196,7 @@ module.exports = {
         const createdData = employeeDb.create(employeeData)
         return res.json({
             msg: 'Employee Added Successfully',
+            success: true,
             data: createdData
         })
     }),
