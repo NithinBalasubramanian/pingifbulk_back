@@ -120,7 +120,7 @@ module.exports = {
         })
     },
 
-    loginAuth: function(req,res) {
+    loginAuthOld: function(req,res) {
         const payload = req.body
         userDb.find({ userMail : payload.userMail })
             .then((data) => {
@@ -164,6 +164,85 @@ module.exports = {
                     success: false
                 })
             }) 
+    },
+
+    loginAuth: async function(req,res) {
+        const payload = req.body
+
+        const condition = { userMail : payload.userMail }
+
+        const data = await userDb.aggregate([
+            {
+                $match: condition
+            },
+            {
+                $lookup: {
+                    from: 'usertypes',
+                    localField: 'type',
+                    foreignField: '_id',
+                    as: 'userType'
+                }
+            },
+            {
+                $unwind: '$userType'
+            },
+            { 
+                $project: {
+                    _id: 1,
+                    userName: 1,
+                    userMail: 1,
+                    contact: 1,
+                    status: 1,
+                    userType: '$userType.typeName'
+                }
+            },
+            {
+                $sort: {
+                    createdOn: 1
+                }
+            }
+        ])
+
+        if (!data) { 
+            return res.json({
+                msg: 'Invalid Username ',
+                status: 400,
+                success: false
+            })
+        } 
+        bcrypt.compare(encryptKey, data[0].password, function(err, result) {
+            if (!result) {
+                return res.json({
+                    msg: 'Invalid Password',
+                    status: 400,
+                    success: false
+                })
+            }
+        });
+        // v1 #1 - Replace with env
+        const secret = jwtKey.jwtSupport.secretKey;
+        const setData = {
+            'userId' : data[0]._id,
+            'status' : data[0].status,
+            'is_admin' : false
+          };
+          jwt.encode(secret, setData, function (err, token) {
+            if (err) {
+              console.error(err.name, err.message);
+            } else {         
+                return res.json({
+                    success: true,
+                    status: 200,
+                    data: {
+                        JWT: token,
+                        userName: data[0].userName,
+                        userMail: data[0].userMail,
+                        userType: data[0].userType?.replaceAll(' ', '-')
+                    },
+                    msg: 'Logged in successfully'
+                })
+            }   
+        })
     },
 
     listUsers: async function(req,res) {
