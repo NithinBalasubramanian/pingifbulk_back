@@ -7,6 +7,7 @@ const userRoute = express();
 userRoute.get('/',controller.userController.checkService)
 userRoute.post('/addUser',controller.userController.addUser)
 userRoute.post('/login',controller.userController.loginAuth)
+userRoute.post('/loginAuthOld',controller.userController.loginAuthOld)
 userRoute.get('/listusers', Auth, controller.userController.listUsers)
 userRoute.get('/listuser/:id', Auth, controller.userController.listUser)
 userRoute.post('/updateUserSubscription', Auth,controller.userController.updateUserSubscription)
