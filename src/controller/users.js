@@ -26,6 +26,24 @@ module.exports = {
 
     // Add User
     addUser: async function(req,res) {
+
+        const userTypeData = await userTypeDb.aggregate([
+            {
+                $match: { 'typeName' : 'Admin'}
+            },
+            { 
+                $project: {
+                    _id: 1,
+                }
+            }
+        ])
+        if (!userTypeData) {
+            return res.json({
+                success: false,
+                status: 400,
+                msg: 'User type is not set'
+            })
+        }
         const payload = req.body
         const password = payload.password
         bcrypt.hash(password, saltRounds)
@@ -35,7 +53,7 @@ module.exports = {
                     userMail: payload.userMail,
                     contact: payload.contact,
                     password: hash,
-                    type: payload.userTypeId,
+                    type: payload.userTypeId ?? userTypeData[0]._id,
                     status: 1
                 }
 
@@ -193,6 +211,7 @@ module.exports = {
                     userMail: 1,
                     contact: 1,
                     status: 1,
+                    userId: '$userType._id',
                     userType: '$userType.typeName'
                 }
             },
@@ -210,6 +229,13 @@ module.exports = {
                 success: false
             })
         } 
+        if (data[0].status !== 1) {
+            return res.json({
+                msg: 'Account is blocked',
+                status: 400,
+                success: false
+            })
+        }
         bcrypt.compare(encryptKey, data[0].password, function(err, result) {
             if (!result) {
                 return res.json({

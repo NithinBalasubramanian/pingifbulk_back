@@ -30,6 +30,7 @@ module.exports = {
 
         const createdData = consumerDb.create(consumerData)
         return res.json({
+            success: true,
             msg: 'Consumer Added Successfully',
             data: createdData
         })
@@ -101,7 +102,9 @@ module.exports = {
     listConsumers: (async (req,res) => {
         const { search, status, type } =  req.query
 
-        const condition = {}
+        const condition = {
+            'createdBy': mongoose.Types.ObjectId(req.user?.userId)
+        }
 
         if (search && search !== '') {
             condition['firstName'] = { $regex: '.*' + search + '.*', $options: 'i' }   
@@ -110,6 +113,8 @@ module.exports = {
         if (status && status !== '') {
             condition['status'] = parseInt(status)
         }
+
+        console.log(condition)
 
         try {
 
