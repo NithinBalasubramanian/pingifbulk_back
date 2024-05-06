@@ -1,0 +1,18 @@
+{
+    "extends": "eslint:recommended",
+    "rules": {
+      "semi": ["warn", "never"],
+      "quotes": ["warn", "single"],
+      "no-console": ["off"]
+    },
+    "parserOptions": {
+      "ecmaVersion": 9
+    },
+    "env": {
+      "es6": true,
+      "node": true,
+      "browser": true,
+      "amd": true
+    },
+    "root": true
+  }
