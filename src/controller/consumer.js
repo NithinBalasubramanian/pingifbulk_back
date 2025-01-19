@@ -3,6 +3,8 @@ require('../model/consumer')
 require('../model/consumerType')
 const consumerDb = mongoose.model('consumer')
 const consumerTypeDb = mongoose.model('consumerType')
+const bcrypt = require('bcrypt');
+const saltRounds = 10
 
 module.exports = {
     consumerService: ((req,res) => {
@@ -12,8 +14,13 @@ module.exports = {
     }),
 
     // Add consumers
-    consumerAdd: ((req,res) => {
+    consumerAdd: (async (req,res) => {
         const data = req.body
+        let password = data.password
+        await bcrypt.hash(password, saltRounds)
+            .then(hash => {
+                 password = hash;
+            })
         const consumerData = {
             firstName: data.firstName,
             middleName: data.middleName ?? '',
@@ -23,6 +30,7 @@ module.exports = {
             description: data.description,
             consumerTypeId: data.consumerTypeId,
             status: 1,
+            password: password,
             creatorType: 2,
             createdBy: req.user?.userId,
             createdOn: new Date()
@@ -103,7 +111,7 @@ module.exports = {
         const { search, status, type } =  req.query
 
         const condition = {
-            'createdBy': mongoose.Types.ObjectId(req.user?.userId)
+            'createdBy': new mongoose.Types.ObjectId(req.user?.userId)
         }
 
         if (search && search !== '') {
