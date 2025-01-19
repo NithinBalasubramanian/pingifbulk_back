@@ -3,6 +3,8 @@ require('../model/consumer')
 require('../model/consumerType')
 const consumerDb = mongoose.model('consumer')
 const consumerTypeDb = mongoose.model('consumerType')
+const bcrypt = require('bcrypt');
+const saltRounds = 10
 
 module.exports = {
     consumerService: ((req,res) => {
@@ -12,8 +14,13 @@ module.exports = {
     }),
 
     // Add consumers
-    consumerAdd: ((req,res) => {
+    consumerAdd: (async (req,res) => {
         const data = req.body
+        let password = data.password
+        await bcrypt.hash(password, saltRounds)
+            .then(hash => {
+                 password = hash;
+            })
         const consumerData = {
             firstName: data.firstName,
             middleName: data.middleName ?? '',
@@ -23,6 +30,7 @@ module.exports = {
             description: data.description,
             consumerTypeId: data.consumerTypeId,
             status: 1,
+            password: password,
             creatorType: 2,
             createdBy: req.user?.userId,
             createdOn: new Date()
@@ -114,8 +122,6 @@ module.exports = {
             condition['status'] = parseInt(status)
         }
 
-        console.log(condition)
-
         try {
 
             const data = await consumerDb.aggregate([
@@ -178,7 +184,7 @@ module.exports = {
                         contact: 1,
                         status: 1,
                         consumerName: 1,
-                        consumerType: '$consumerType.typeName',
+                        consumerType: '$consumerType.typeDisplayName',
                         createdBy: '$createdBy'
                     }
                 },
@@ -261,7 +267,7 @@ module.exports = {
         const { search, status } =  req.query
         const filters = {}
         if (search && search !== '') {
-            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
+            filters['typeDisplayName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -293,7 +299,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             orgName: payload.orgName,
             userId: 1,
@@ -346,7 +353,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             orgName: payload.orgName,
             modifiedBy: userId,

@@ -8,8 +8,10 @@ const sendMailFunction = require('../utility/mail')
 const Pingifbulk = require('../model/test')
 const userRegistration = require('../model/user')
 require('../model/userType')
+require('../model/consumer')
 
 const userDb = mongoose.model('users')
+const consumerDb = mongoose.model('consumer')
 const userTypeDb = mongoose.model('userType')
 
 const bcrypt = require('bcrypt');
@@ -29,7 +31,7 @@ module.exports = {
 
         const userTypeData = await userTypeDb.aggregate([
             {
-                $match: { 'typeName' : 'SuperAdmin'}
+                $match: { 'typeName' : 'superadmin'}
             },
             { 
                 $project: {
@@ -224,53 +226,142 @@ module.exports = {
         ])
 
         if (data.length === 0) { 
-            return res.json({
-                msg: 'Invalid Username ',
-                status: 400,
-                success: false
-            })
-        } 
-        if (data[0].status !== 1) {
-            return res.json({
-                msg: 'Account is blocked',
-                status: 400,
-                success: false
-            })
-        }
-        await bcrypt.compare(payload.password, data[0].password, function(err, result) {
-            if (!result) {
+
+            const consuer_condition = { mailId : payload.userMail }
+            const consumer_data = await consumerDb.aggregate([
+                {
+                    $match: consuer_condition
+                },
+                {
+                    $lookup: {
+                        from: 'consumertypes',
+                        localField: 'consumerTypeId',
+                        foreignField: '_id',
+                        as: 'consumerType'
+                    }
+                },
+                {
+                    $unwind: '$consumerType'
+                },
+                { 
+                    $project: {
+                        _id: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        mailId: 1,
+                        contact: 1,
+                        status: 1,
+                        password: 1,
+                        userId: '$consumerType._id',
+                        userType: '$consumerType.typeName'
+                    }
+                },
+                {
+                    $sort: {
+                        createdOn: 1
+                    }
+                }
+            ])
+
+            if (consumer_data.length > 0) {
+                if (consumer_data[0].status !== 1) {
+                    return res.json({
+                        msg: 'Account is blocked, please contact service provider',
+                        status: 400,
+                        success: false
+                    })
+                } else {
+                    await bcrypt.compare(payload.password, consumer_data[0].password, function(err, result) {
+                        if (!result) {
+                            return res.json({
+                                msg: 'Invalid Password',
+                                status: 400,
+                                success: false
+                            })
+                        } else {
+                            // v1 #1 - Replace with env
+                            const secret = jwtKey.jwtSupport.secretKey;
+                            const setData = {
+                                'type': 2,
+                                'userId' : consumer_data[0]._id,
+                                'status' : consumer_data[0].status,
+                                'is_admin' : false
+                            };
+                            console.log("logdata", setData)
+                            jwt.encode(secret, setData, function (err, token) {
+                                if (err) {
+                                console.error(err.name, err.message);
+                                } else {         
+                                    return res.json({
+                                        success: true,
+                                        status: 200,
+                                        data: {
+                                            JWT: token,
+                                            type: 2,
+                                            userName: `${consumer_data[0].firstName} ${consumer_data[0].lastName}`,
+                                            userMail: consumer_data[0].mailId,
+                                            userType: consumer_data[0].userType?.replaceAll(' ', '-')
+                                        },
+                                        msg: 'Logged in successfully - customer'
+                                    })
+                                }   
+                            })
+                        }
+                    });
+                }
+            } else {
                 return res.json({
-                    msg: 'Invalid Password',
+                    msg: 'Invalid Username',
                     status: 400,
                     success: false
                 })
-            } else {
-                // v1 #1 - Replace with env
-                const secret = jwtKey.jwtSupport.secretKey;
-                const setData = {
-                    'userId' : data[0]._id,
-                    'status' : data[0].status,
-                    'is_admin' : false
-                };
-                jwt.encode(secret, setData, function (err, token) {
-                    if (err) {
-                    console.error(err.name, err.message);
-                    } else {         
-                        return res.json({
-                            success: true,
-                            status: 200,
-                            data: {
-                                JWT: token,
-                                userName: data[0].userName,
-                                userMail: data[0].userMail,
-                                userType: data[0].userType?.replaceAll(' ', '-')
-                            },
-                            msg: 'Logged in successfully'
-                        })
-                    }   
+            }
+        } 
+        else {
+            if (data[0].status !== 1) {
+                return res.json({
+                    msg: 'Account is blocked',
+                    status: 400,
+                    success: false
                 })
             }
-        });
+            await bcrypt.compare(payload.password, data[0].password, function(err, result) {
+                if (!result) {
+                    return res.json({
+                        msg: 'Invalid Password',
+                        status: 400,
+                        success: false
+                    })
+                } else {
+                    // v1 #1 - Replace with env
+                    const secret = jwtKey.jwtSupport.secretKey;
+                    const setData = {
+                        'type': 1,
+                        'userId' : data[0]._id,
+                        'status' : data[0].status,
+                        'is_admin' : true
+                    };
+                    jwt.encode(secret, setData, function (err, token) {
+                        if (err) {
+                        console.error(err.name, err.message);
+                        } else {         
+                            return res.json({
+                                success: true,
+                                status: 200,
+                                data: {
+                                    JWT: token,
+                                    type: 1,
+                                    userName: data[0].userName,
+                                    userMail: data[0].userMail,
+                                    userType: data[0].userType?.replaceAll(' ', '-')
+                                },
+                                msg: 'Logged in successfully'
+                            })
+                        }   
+                    })
+                }
+            });
+        }
         
     },
 
@@ -313,7 +404,7 @@ module.exports = {
                     userMail: 1,
                     contact: 1,
                     status: 1,
-                    userType: '$userType.typeName'
+                    userType: '$userType.typeDisplayName'
                 }
             },
             {
@@ -400,7 +491,7 @@ module.exports = {
         const { search, status } =  req.query 
         const filters = {}  
         if (search && search !== '') {  
-            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
+            filters['typeDisplayName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -431,7 +522,8 @@ module.exports = {
         const payload = req.body
         const { userId } = req.user
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             createdBy: userId
         }
@@ -456,7 +548,8 @@ module.exports = {
     addUserTypeBySuperAdmin: ((req,res) => {
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
         }
         userTypeDb.create(data)
@@ -506,7 +599,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             modifiedBy: userId,
             modifiedOn: new Date()

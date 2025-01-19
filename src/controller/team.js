@@ -111,7 +111,7 @@ module.exports = {
     listTeamTypes: ((req,res) => {
         const { search, status } =  req.query
         const filters = {
-            "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
+            "typeDisplayName": { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -142,7 +142,8 @@ module.exports = {
         const payload = req.body
         const { userId } = req.user
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             userId: userId,
             createdBy: userId
@@ -194,7 +195,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             modifiedBy: userId,
             modifiedOn: new Date()
