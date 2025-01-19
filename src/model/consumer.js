@@ -28,6 +28,13 @@ const consumerSchema = new mongoose.Schema({
     description: {
         type: String
     },
+    description: {
+        type: String
+    },
+    password: {
+        type: String,
+        required: true
+    },
     group: {
         type: Number,   // TYpe of consumer based on consumer group table (optional)
     },
