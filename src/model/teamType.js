@@ -1,6 +1,10 @@
 const mongoose = require('mongoose')
 
 const teamTypeSchema = new mongoose.Schema({
+    typeDisplayName : {
+        type: String,
+        required: true
+    },
     typeName : {
         type: String,
         required: true,

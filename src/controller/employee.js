@@ -17,7 +17,7 @@ module.exports = {
         const filters = {}
         
         if (search && search !== '') {
-            filters['typeName'] = { $regex: '.*' + search + '.*', $options: 'i' }
+            filters['typeDisplayName'] = { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -48,7 +48,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             userId: userId,
             createdBy: userId
@@ -123,7 +124,8 @@ module.exports = {
         const { userId } = req.user
         const payload = req.body
         const data = {
-            typeName: payload.typeName,
+            typeDisplayName: payload.typeName,
+            typeName: payload.typeName.trim().replaceAll(" ","_").toLowerCase(),
             description: payload.description,
             modifiedBy: userId,
             modifiedOn: new Date()
@@ -276,13 +278,12 @@ module.exports = {
         }
 
         if (search && search !== '') {
-            condition['firstName'] = { $regex: '.*' + search + '.*', $options: 'i' }   
+            condition['firstName'] = { $regex: '.*' + search + '.*', $options: 'i' } 
         }
 
         if (status && status !== '') {
             condition['status'] = parseInt(status)
         }
-
 
         try {
 
@@ -303,7 +304,7 @@ module.exports = {
                 },
                 {
                     $lookup: {
-                        from: 'users',
+                        from: req.user.type  === 1 ? 'users' : 'consumers',
                         localField: 'createdBy',
                         foreignField: '_id',
                         as: 'createdByUser'
@@ -324,8 +325,8 @@ module.exports = {
                         mailId: 1,
                         contact: 1,
                         status: 1,
-                        employeeType: '$employeeType.employeeType',
-                        creatorName: '$createdByUser.userName'
+                        employeeType: '$employeeType.typeDisplayName',
+                        creatorName: req.user.type  === 1 ? '$createdByUser.userName' : '$createdByUser.firstName'
                     }
                 },
                 {

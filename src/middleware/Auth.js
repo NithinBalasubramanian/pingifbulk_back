@@ -4,7 +4,7 @@ const jwtKey = require('../config/jwtConfig')
 // Verify token middleware
 const Auth = ((req,res,next) => {
     const authHeader = req.headers['authorization']
-    const token = authHeader && authHeader.split(' ')[1]
+    const token = authHeader && authHeader.split(' ')[1];
     if (token == null ){ 
         return res.json({
             msg: 'Invalid Token',
@@ -25,7 +25,7 @@ const Auth = ((req,res,next) => {
             success: false
         })
         } else {
-          // console.log(decodedPayload, decodedHeader);
+          console.log(decodedPayload);
           req.user = decodedPayload
           // res.json(req)
         }
