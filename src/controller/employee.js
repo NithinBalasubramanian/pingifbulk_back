@@ -272,7 +272,7 @@ module.exports = {
         const { search, status, type } =  req.query
  
         const condition = {
-            'createdBy': mongoose.Types.ObjectId(req.user?.userId)
+            'createdBy': new mongoose.Types.ObjectId(req.user?.userId)
         }
 
         if (search && search !== '') {

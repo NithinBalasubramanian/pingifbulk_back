@@ -23,7 +23,7 @@ const userTypeSchema = new mongoose.Schema({
         default: new Date()
     },
     createdBy: {
-        type: mongoose.Types.ObjectId
+        type: mongoose.Types.ObjectId || String
     },
     modifiedBy: {
         type: mongoose.Types.ObjectId

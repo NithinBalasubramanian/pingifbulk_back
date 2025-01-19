@@ -90,66 +90,75 @@ mailerRouter.post('/fetchMailsByType', async (req,res) => {
 
     let data = []
 
-    switch (categoryType) {
-        case '1':
-            data = await consumerDb.aggregate([
-                {
-                    $match: { "consumerTypeId": mongoose.Types.ObjectId(typeId), "status": 1 }
-                },
-                {
-                        $project: {
-                            mailId: 1
-                        }
-                }
-            ])
-            break;
-        case '2':
-            data = await userDb.aggregate([
-                {
-                    $match: { "type": mongoose.Types.ObjectId(typeId), "status": 1 }
-                },
-                {
-                    $addFields: {
-                        mailId: "$userMail"
+    try {
+
+        switch (categoryType) {
+            case '1':
+                data = await consumerDb.aggregate([
+                    {
+                        $match: { "consumerTypeId": new mongoose.Types.ObjectId(typeId), "status": 1 }
+                    },
+                    {
+                            $project: {
+                                mailId: 1
+                            }
                     }
-                },
-                {
-                        $project: {
-                            mailId: 1
+                ])
+                break;
+            case '2':
+                data = await userDb.aggregate([
+                    {
+                        $match: { "type": new mongoose.Types.ObjectId(typeId), "status": 1 }
+                    },
+                    {
+                        $addFields: {
+                            mailId: "$userMail"
                         }
-                }
-            ])
-            break;
-        case '3':
-            data = await employeeDb.aggregate([
-                {
-                    $match: { "employeeTypeId": mongoose.Types.ObjectId(typeId), "status": 1 }
-                },
-                {
-                        $project: {
-                            mailId: 1
-                        }
-                }
-            ])
-            break;
-        default:
-            break;
-    }
+                    },
+                    {
+                            $project: {
+                                mailId: 1
+                            }
+                    }
+                ])
+                break;
+            case '3':
+                data = await employeeDb.aggregate([
+                    {
+                        $match: { "employeeTypeId":  new mongoose.Types.ObjectId(typeId), "status": 1 }
+                    },
+                    {
+                            $project: {
+                                mailId: 1
+                            }
+                    }
+                ])
+                break;
+            default:
+                break;
+        }
 
 
-    if (!data) { 
+        if (data.length === 0) { 
+            return res.json({
+                msg: 'No data found',
+                success: false,
+                status: 400
+            })
+        } 
         return res.json({
-            msg: 'Emails fetching unsuccessful',
+            data: data,
+            msg: 'Emails fetched successfully',
+            success: true,
+            status: 200
+        })
+    } catch(e) {
+        return res.json({
+            msg: 'No data found',
             success: false,
             status: 400
         })
-    } 
-    return res.json({
-        data: data,
-        msg: 'Emails fetched successfully',
-        success: true,
-        status: 200
-    })
+    }
 })
 
 module.exports = mailerRouter

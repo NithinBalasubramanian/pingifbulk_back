@@ -14,6 +14,7 @@ userRoute.post('/updateUserSubscription', Auth,controller.userController.updateU
 userRoute.get('/updateUserStatus/:id/:status', Auth,controller.userController.updateUserStatus)
 
 userRoute.get('/fetchUserType', Auth, controller.userController.listUserTypes)
+userRoute.post('/addUserTypeSuperAdmin', controller.userController.addUserTypeBySuperAdmin)
 userRoute.post('/addUserType', Auth, controller.userController.addUserType)
 userRoute.get('/fetchUserTypeById/:id', Auth, controller.userController.fetchUserById)
 userRoute.post('/updateUserType/:id', Auth, controller.userController.updateUserType)

@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     type: {
-        type: mongoose.Types.ObjectId
+        type: mongoose.Types.ObjectId,
     },
     status: {
         type: Number,

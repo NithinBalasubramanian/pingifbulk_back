@@ -29,7 +29,7 @@ module.exports = {
 
         const userTypeData = await userTypeDb.aggregate([
             {
-                $match: { 'typeName' : 'Admin'}
+                $match: { 'typeName' : 'SuperAdmin'}
             },
             { 
                 $project: {
@@ -211,6 +211,7 @@ module.exports = {
                     userMail: 1,
                     contact: 1,
                     status: 1,
+                    password: 1,
                     userId: '$userType._id',
                     userType: '$userType.typeName'
                 }
@@ -222,7 +223,7 @@ module.exports = {
             }
         ])
 
-        if (!data) { 
+        if (data.length === 0) { 
             return res.json({
                 msg: 'Invalid Username ',
                 status: 400,
@@ -236,39 +237,41 @@ module.exports = {
                 success: false
             })
         }
-        bcrypt.compare(encryptKey, data[0].password, function(err, result) {
+        await bcrypt.compare(payload.password, data[0].password, function(err, result) {
             if (!result) {
                 return res.json({
                     msg: 'Invalid Password',
                     status: 400,
                     success: false
                 })
+            } else {
+                // v1 #1 - Replace with env
+                const secret = jwtKey.jwtSupport.secretKey;
+                const setData = {
+                    'userId' : data[0]._id,
+                    'status' : data[0].status,
+                    'is_admin' : false
+                };
+                jwt.encode(secret, setData, function (err, token) {
+                    if (err) {
+                    console.error(err.name, err.message);
+                    } else {         
+                        return res.json({
+                            success: true,
+                            status: 200,
+                            data: {
+                                JWT: token,
+                                userName: data[0].userName,
+                                userMail: data[0].userMail,
+                                userType: data[0].userType?.replaceAll(' ', '-')
+                            },
+                            msg: 'Logged in successfully'
+                        })
+                    }   
+                })
             }
         });
-        // v1 #1 - Replace with env
-        const secret = jwtKey.jwtSupport.secretKey;
-        const setData = {
-            'userId' : data[0]._id,
-            'status' : data[0].status,
-            'is_admin' : false
-          };
-          jwt.encode(secret, setData, function (err, token) {
-            if (err) {
-              console.error(err.name, err.message);
-            } else {         
-                return res.json({
-                    success: true,
-                    status: 200,
-                    data: {
-                        JWT: token,
-                        userName: data[0].userName,
-                        userMail: data[0].userMail,
-                        userType: data[0].userType?.replaceAll(' ', '-')
-                    },
-                    msg: 'Logged in successfully'
-                })
-            }   
-        })
+        
     },
 
     listUsers: async function(req,res) {
@@ -423,7 +426,7 @@ module.exports = {
             })
     }),
 
-    // add user type
+    // add user type 
     addUserType: ((req,res) => {
         const payload = req.body
         const { userId } = req.user
@@ -431,6 +434,30 @@ module.exports = {
             typeName: payload.typeName,
             description: payload.description,
             createdBy: userId
+        }
+        userTypeDb.create(data)
+            .then(resData => {
+                return res.json({
+                    success: true,
+                    status: 200,
+                    msg: 'User type inserted successfully'
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
+
+    }),
+
+    addUserTypeBySuperAdmin: ((req,res) => {
+        const payload = req.body
+        const data = {
+            typeName: payload.typeName,
+            description: payload.description,
         }
         userTypeDb.create(data)
             .then(resData => {
