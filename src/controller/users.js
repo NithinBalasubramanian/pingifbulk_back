@@ -287,7 +287,6 @@ module.exports = {
                                 'status' : consumer_data[0].status,
                                 'is_admin' : false
                             };
-                            console.log("logdata", setData)
                             jwt.encode(secret, setData, function (err, token) {
                                 if (err) {
                                 console.error(err.name, err.message);

@@ -11,17 +11,58 @@ module.exports = {
         })
     }),
 
-    // Add consumers
+    // Add team
     teamAdd: ((req,res) => {
+        const data = req.body
+        const teamData = {
+            teamName: data.teamName.trim().replaceAll(" ", "_").toLowerCase(),
+            teamUserName: data.teamName,
+            description: data.description,
+            teamTypeId: data.teamTypeId,
+            status: 1,
+            creatorType: 1,
+            createdBy: req.user?.userId
+        }
+
+        const createdData = teamDb.create(teamData)
         return res.json({
-            msg: 'Team service working fine'
+            msg: 'Team Added Successfully',
+            success: true,
+            data: createdData
         })
     }),
 
-    // Update consumers
+    // Update team
     teamUpdate: ((req,res) => {
-        return res.json({
-            msg: 'Team service working fine'
+        const { id } = req.params
+        const data = req.body
+        const teamData = {
+            teamName: data.teamName.trim().replaceAll(" ", "_").toLowerCase(),
+            teamUserName: data.teamName,
+            description: data.description,
+            teamTypeId: data.teamTypeId,
+            status: 1,
+            creatorType: 2,
+            modifiedBy: req.user?.userId,
+            modifiedOn: new Date()
+        }
+
+        teamDb.updateOne({_id: id}, teamData, { upsert: true })   // upsert - inserts data if not found
+        .then(resData => {
+            return res.json({
+                msg: 'Team updated successfully',
+                data: resData,
+                success: true,
+                status: 200
+            })
+        })
+        .catch(e => {
+            return res.json({
+                data: [],
+                msg: e,
+                success: false,
+                status: 400
+            })
         })
     }),
 
@@ -54,11 +95,11 @@ module.exports = {
         })
     }),
 
-    // list consumers based on logged user
+    // list team based on logged user
     listteams: ((req,res) => {
         const { search, status, type } =  req.query
         const filters = {
-            "firstName": { $regex: '.*' + search + '.*', $options: 'i' }
+            "teamUserName": { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
@@ -84,7 +125,7 @@ module.exports = {
             })
     }),
 
-    // List consumer data by id
+    // List team data by id
     listTeam: ((req,res) => {
         const { id } =  req.params
 
@@ -92,7 +133,7 @@ module.exports = {
             .then(resData => {
                 return res.json({
                     data: resData,
-                    msg: 'team fetched successfully',
+                    msg: 'Team fetched successfully',
                     success: true,
                     status: 200
                 })
@@ -107,11 +148,12 @@ module.exports = {
             })
     }),
 
+
     // reference list all team type
     listTeamTypes: ((req,res) => {
         const { search, status } =  req.query
         const filters = {
-            "typeDisplayName": { $regex: '.*' + search + '.*', $options: 'i' }
+            // "typeName": { $regex: '.*' + search + '.*', $options: 'i' }
         }
 
         if (status && status !== '') {
