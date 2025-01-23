@@ -1,43 +1,25 @@
 const mongoose = require('mongoose')
 
 const teamSchema = new mongoose.Schema({
-    firstName: {
+    teamName: {
         type: String,
         required: true,
         unique: true
     },
-    middleName: {
-        type: String
-    },
-    lastName: {
+    teamUserName: {
         type: String,
-        required: true
+        required: true,
     },
-    workMailId: {
+    description: {
         type: String,
-        required: true
-    },
-    homeMailId: {
-        type: String
-    },
-    workContact: {
-        type: Number,
-        required: true
-    },
-    homeContact: {
-        type: Number
-    },
-    joinedDate: {
-        type: Date,
-        required: true
     },
     status: {
         type: Number,
         required: true   // 1 - Active , 2 - In Active 
     },
-    type: {
+    teamTypeId: {
         type: mongoose.Types.ObjectId,
-        required: true  // Types based on employee type
+        required: true  // Types based on team type
     },
     creatorType: {
         type: Number,  // 1 - User , 2 - Staff
