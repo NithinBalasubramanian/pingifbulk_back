@@ -25,7 +25,6 @@ const Auth = ((req,res,next) => {
             success: false
         })
         } else {
-          console.log(decodedPayload);
           req.user = decodedPayload
           // res.json(req)
         }
