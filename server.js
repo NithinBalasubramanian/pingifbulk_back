@@ -24,6 +24,9 @@ app.use('/v1/user',Router.UserRouter)
 // Mailer management
 app.use('/v1/mailer',Router.MailerRouter)
 
+// Client management
+app.use('/v1/client',Router.ClientRouter)
+
 // Consumer management
 app.use('/v1/consumer',Router.ConsumerRouter)
 
