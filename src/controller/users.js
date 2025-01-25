@@ -8,10 +8,10 @@ const sendMailFunction = require('../utility/mail')
 const Pingifbulk = require('../model/test')
 const userRegistration = require('../model/user')
 require('../model/userType')
-require('../model/consumer')
+require('../model/client')
 
 const userDb = mongoose.model('users')
-const consumerDb = mongoose.model('consumer')
+const clientDb = mongoose.model('client')
 const userTypeDb = mongoose.model('userType')
 
 const bcrypt = require('bcrypt');
@@ -227,33 +227,19 @@ module.exports = {
 
         if (data.length === 0) { 
 
-            const consuer_condition = { mailId : payload.userMail }
-            const consumer_data = await consumerDb.aggregate([
+            const client_condition = { mailId : payload.userMail }
+            const client_data = await clientDb.aggregate([
                 {
-                    $match: consuer_condition
-                },
-                {
-                    $lookup: {
-                        from: 'consumertypes',
-                        localField: 'consumerTypeId',
-                        foreignField: '_id',
-                        as: 'consumerType'
-                    }
-                },
-                {
-                    $unwind: '$consumerType'
+                    $match: client_condition
                 },
                 { 
                     $project: {
                         _id: 1,
-                        firstName: 1,
-                        lastName: 1,
+                        companyName: 1,
                         mailId: 1,
                         contact: 1,
                         status: 1,
                         password: 1,
-                        userId: '$consumerType._id',
-                        userType: '$consumerType.typeName'
                     }
                 },
                 {
@@ -263,15 +249,15 @@ module.exports = {
                 }
             ])
 
-            if (consumer_data.length > 0) {
-                if (consumer_data[0].status !== 1) {
+            if (client_data.length > 0) {
+                if (client_data[0].status !== 1) {
                     return res.json({
                         msg: 'Account is blocked, please contact service provider',
                         status: 400,
                         success: false
                     })
                 } else {
-                    await bcrypt.compare(payload.password, consumer_data[0].password, function(err, result) {
+                    await bcrypt.compare(payload.password, client_data[0].password, function(err, result) {
                         if (!result) {
                             return res.json({
                                 msg: 'Invalid Password',
@@ -283,8 +269,8 @@ module.exports = {
                             const secret = jwtKey.jwtSupport.secretKey;
                             const setData = {
                                 'type': 2,
-                                'userId' : consumer_data[0]._id,
-                                'status' : consumer_data[0].status,
+                                'userId' : client_data[0]._id,
+                                'status' : client_data[0].status,
                                 'is_admin' : false
                             };
                             jwt.encode(secret, setData, function (err, token) {
@@ -297,11 +283,11 @@ module.exports = {
                                         data: {
                                             JWT: token,
                                             type: 2,
-                                            userName: `${consumer_data[0].firstName} ${consumer_data[0].lastName}`,
-                                            userMail: consumer_data[0].mailId,
-                                            userType: consumer_data[0].userType?.replaceAll(' ', '-')
+                                            userName: `${client_data[0].companyName}`,
+                                            userMail: client_data[0].mailId,
+                                            userType: 'trail_user'
                                         },
-                                        msg: 'Logged in successfully - customer'
+                                        msg: 'Logged in successfully - client'
                                     })
                                 }   
                             })

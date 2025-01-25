@@ -11,6 +11,49 @@ module.exports = {
         })
     }),
 
+
+    
+    // Add User
+    registerUser: async function(req,res) {
+
+        const payload = req.body
+        const password = payload.password
+        bcrypt.hash(password, saltRounds)
+            .then(hash => {
+                const data = {
+                    companyName: payload.userName,
+                    mailId: payload.userMail,
+                    contact: payload.contact,
+                    password: hash,
+                    status: 1,
+                }
+
+                clientDb.create(data)
+                .then(resData => {
+                    sendWelcomeMail(payload.userName, payload.userMail)
+                    return res.json({
+                        success: true,
+                        status: 200,
+                        msg: 'User registered successfully'
+                    })
+                })
+                .catch(e => {
+                    return res.json({
+                        success: false,
+                        status: 400,
+                        msg: e
+                    })
+                })
+            })
+            .catch(e => {
+                return res.json({
+                    success: false,
+                    status: 400,
+                    msg: e
+                })
+            })
+    },
+
     // Add client
     clientAdd: (async (req,res) => {
         const data = req.body
@@ -127,37 +170,38 @@ module.exports = {
                 },
                 {
                     $addFields: {
-                        "createdBy": {
+                        createdBy: {
                             $cond: [
-                                    { $gte: [
-                                        { $size:  "$createdByUser" },
-                                        1
-                                    ]}, 
-                                    "$createdByUser.userName",
-                                    "$createdByEmployee.firstName"
-                                ]
+                                { $gte: [{ $size: "$createdByUser" }, 1] }, 
+                                { $arrayElemAt: ["$createdByUser.userName", 0] }, // Safely extract userName from the first matched user
+                                "$createdByEmployee.firstName" // Fallback if no user found
+                            ]
                         }
                     }
                 },
                 {
-                    $unwind: '$createdBy'
+                    $unwind: {
+                        path: '$createdBy',
+                        preserveNullAndEmptyArrays: true // Keep documents without a valid createdBy field
+                    }
                 },
-                { 
+                {
                     $project: {
                         _id: 1,
                         mailId: 1,
                         contact: 1,
                         status: 1,
                         companyName: 1,
-                        createdBy: '$createdBy'
+                        createdBy: 1 // No remapping required here, already flattened
                     }
                 },
                 {
                     $sort: {
-                        createdOn: 1
+                        createdOn: 1 // Assuming "createdOn" exists for sorting
                     }
                 }
-            ])
+            ]);
+            
             if (!data) { 
                 return res.json({
                     msg: 'Client fetching unsuccessful',

@@ -37,7 +37,6 @@ const clientSchema = new mongoose.Schema({
     },
     createdBy: {
         type: mongoose.Types.ObjectId,  // By user id or staff of user id
-        required: true
     },
     createdOn: {
         type: Date,
